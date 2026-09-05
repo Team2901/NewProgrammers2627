@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(group = "Parke")
 public class ParkeTeleop extends OpMode {
+    public static final double SPEEDFACTOR = 1.25;
+    public static final int TURNRATIO = 2;
     int buttonPresses = 0;
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -21,8 +23,9 @@ public class ParkeTeleop extends OpMode {
 
     @Override
     public void loop() {
-        leftDrive.setPower(-gamepad1.right_stick_y);
-        rightDrive. setPower(gamepad1.right_stick_y);
+
+        leftDrive.setPower((gamepad1.right_stick_x/TURNRATIO-gamepad1.right_stick_y)/SPEEDFACTOR);
+        rightDrive.setPower((-gamepad1.right_stick_x/TURNRATIO-gamepad1.right_stick_y)/SPEEDFACTOR);
 
         telemetry.addData("JoyLX", gamepad1.left_stick_x);
         telemetry.addData("JoyLY", -gamepad1.left_stick_y);
