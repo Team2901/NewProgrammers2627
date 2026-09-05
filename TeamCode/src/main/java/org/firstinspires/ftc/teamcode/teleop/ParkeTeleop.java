@@ -22,7 +22,8 @@ public class ParkeTeleop extends OpMode {
     @Override
     public void loop() {
         leftDrive.setPower(-gamepad1.right_stick_y);
-        rightDrive. setPower(-gamepad1.right_stick_y);
+        rightDrive. setPower(gamepad1.right_stick_y);
+        leftDrive.setPower();
 
         telemetry.addData("JoyLX", gamepad1.left_stick_x);
         telemetry.addData("JoyLY", -gamepad1.left_stick_y);
