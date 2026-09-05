@@ -5,6 +5,7 @@ import javafx.scene.image.Image;
 import virtual_robot.controller.Game;
 import virtual_robot.controller.VirtualBot;
 import virtual_robot.games.Decode;
+import virtual_robot.robots.classes.ClawBot;
 import virtual_robot.robots.classes.MecanumBot;
 
 /**
@@ -59,5 +60,5 @@ public class Config {
     /**
      *  Default Robot Configuration
      */
-    public static final Class<? extends VirtualBot> DEFAULT_BOT = MecanumBot.class;
+    public static final Class<? extends VirtualBot> DEFAULT_BOT = ClawBot.class;
 }
