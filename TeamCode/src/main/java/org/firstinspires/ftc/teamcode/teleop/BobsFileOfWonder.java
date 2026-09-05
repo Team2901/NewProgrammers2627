@@ -3,24 +3,36 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(group = "David")
 public class BobsFileOfWonder extends OpMode {
     int buttonPresses = 0;
-    boolean xButton = false;
+    DcMotor leftDrive;
+    DcMotor rightDrive;
 
     @Override
     public void init() {
-        telemetry.addData("Bob", "Calvin is a Cutie");
+        telemetry.addData("Bob", "I think its working");
+
+        leftDrive = hardwareMap.get(DcMotor.class, "leftDrive");
+        rightDrive = hardwareMap.get(DcMotor.class, "rightDrive");
+
+        leftDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     }
+
 
     @Override
     public void loop() {
 
+        leftDrive.setPower(-gamepad1.right_stick_y);
+        rightDrive.setPower(-gamepad1.right_stick_y);
+
         telemetry.addData("JoyLX", gamepad1.left_stick_x);
-        telemetry.addData("JoyLY", gamepad1.left_stick_y);
+        telemetry.addData("JoyLY", -gamepad1.left_stick_y);
         telemetry.addData("JoyRX", gamepad2.left_stick_x);
-        telemetry.addData("JoyRY", gamepad2.left_stick_y);
+        telemetry.addData("JoyRY", -gamepad2.left_stick_y);
 
         if (gamepad1.aWasPressed()) {
             buttonPresses = buttonPresses + 1;
@@ -34,16 +46,8 @@ public class BobsFileOfWonder extends OpMode {
 
         telemetry.addData("Button Presses", buttonPresses);
 
-        if (gamepad1.xWasPressed()) {
-            xButton = true;
-            telemetry.addData("X", xButton);
-        }
-
-        if (gamepad1.xWasReleased()) {
-            xButton = false;
-            telemetry.addData("X", xButton);
         }
 
     }
-}
+
 
