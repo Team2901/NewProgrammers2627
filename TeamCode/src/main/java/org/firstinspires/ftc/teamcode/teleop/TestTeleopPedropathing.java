@@ -10,15 +10,18 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 import java.util.function.Supplier;
+
+@Disabled
 @Configurable
-@TeleOp(name="TestTeleopPedropathing")
+@TeleOp(group = "example")
 public class TestTeleopPedropathing extends OpMode {
     private Follower follower;
     public static Pose startingPose = new Pose(72,72, Math.toRadians(90)); //START
@@ -27,7 +30,7 @@ public class TestTeleopPedropathing extends OpMode {
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
     private double slowModeMultiplier = 1;
-    Hardware robot = new Hardware();
+    DecodeHardware robot = new DecodeHardware();
     @Override
     public void init() { //TODO starts at (72, 72, 90)
         follower = Constants.createFollower(hardwareMap);

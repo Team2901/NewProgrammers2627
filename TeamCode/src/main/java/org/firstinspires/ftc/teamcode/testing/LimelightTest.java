@@ -8,14 +8,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 import org.firstinspires.ftc.teamcode.utilities.WriteObservations;
 
-@TeleOp(name = "LimelightTestVision.V2", group = "test")
-public class LimelightTestVision extends OpMode{
+@TeleOp(group = "test")
+public class LimelightTest extends OpMode{
     private Limelight3A limelight3A;
-    Hardware bench = new Hardware();
-    private double distance;
+    DecodeHardware bench = new DecodeHardware();
+
     @Override
     public void init() {
         bench.init(hardwareMap, telemetry);
@@ -37,7 +37,7 @@ public class LimelightTestVision extends OpMode{
         LLResult llResult = limelight3A.getLatestResult();
         if (llResult != null && llResult.isValid()){
             Pose3D botpose = llResult.getBotpose_MT2();
-            distance = getDistanceFromTag(llResult.getTa());
+            double distance = getDistanceFromTag(llResult.getTa());
             telemetry.addData("Calculated Distance", distance);
             telemetry.addData("Target X", llResult.getTx());
             telemetry.addData("Target Y", llResult.getTy());

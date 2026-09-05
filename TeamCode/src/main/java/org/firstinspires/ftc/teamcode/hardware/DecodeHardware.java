@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.utilities.ConfigUtilities;
 @Configurable
-public class Hardware {
+public class DecodeHardware {
 
     public DcMotorEx frontLeft;
     public DcMotorEx backLeft;
@@ -177,8 +177,8 @@ public class Hardware {
     // Autonomously moves robot by calculating necessary encoder ticks to move to input position.
     public void move(double yInches, double xInches) {
         // Conversion of inches to ticks
-        int ticksY = (int) (yInches * Hardware.TICKS_PER_INCH);
-        int ticksX = (int) (xInches * (Hardware.TICKS_PER_INCH / 0.9));
+        int ticksY = (int) (yInches * DecodeHardware.TICKS_PER_INCH);
+        int ticksX = (int) (xInches * (DecodeHardware.TICKS_PER_INCH / 0.9));
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

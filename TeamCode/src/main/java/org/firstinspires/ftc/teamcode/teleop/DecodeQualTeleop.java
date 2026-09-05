@@ -1,21 +1,19 @@
 package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-@TeleOp(name = "QualTeleopV4")
-public class QualTeleop extends OpMode {
-    Hardware robot = new Hardware();
+@Disabled
+@TeleOp(group = "example")
+public class DecodeQualTeleop extends OpMode {
+    DecodeHardware robot = new DecodeHardware();
     private Limelight3A limelight3A;
 
     double turningPower;
