@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(group = "David")
 public class BobsFileOfWonder extends OpMode {
+    public static final int TURN_RATIO = 2;
+    public static final double SPEED_FACTOR = 1.25;
     int buttonPresses = 0;
     DcMotor leftDrive;
     DcMotor rightDrive;
@@ -26,13 +28,13 @@ public class BobsFileOfWonder extends OpMode {
     @Override
     public void loop() {
 
-        leftDrive.setPower(-gamepad1.right_stick_y);
-        rightDrive.setPower(-gamepad1.right_stick_y);
+        rightDrive.setPower((gamepad1.right_stick_x/TURN_RATIO + gamepad1.right_stick_y)/SPEED_FACTOR);
+        leftDrive.setPower((gamepad1.right_stick_y - (gamepad1.right_stick_x/TURN_RATIO))/SPEED_FACTOR);
 
-        telemetry.addData("JoyLX", gamepad1.left_stick_x);
-        telemetry.addData("JoyLY", -gamepad1.left_stick_y);
-        telemetry.addData("JoyRX", gamepad2.left_stick_x);
-        telemetry.addData("JoyRY", -gamepad2.left_stick_y);
+        telemetry.addData("RPower", rightDrive);
+        telemetry.addData("RPower", leftDrive);
+        telemetry.addData("JoyRX", gamepad1.right_stick_x);
+        telemetry.addData("JoyRY", -gamepad1.right_stick_y);
 
         if (gamepad1.aWasPressed()) {
             buttonPresses = buttonPresses + 1;

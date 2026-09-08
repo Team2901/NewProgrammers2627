@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(group = "Parke")
 public class ParkeTeleop extends OpMode {
-    int buttonPresses = 0;
+    int bButtonPresses = 0;
     DcMotor leftDrive;
     DcMotor rightDrive;
 
@@ -21,22 +21,28 @@ public class ParkeTeleop extends OpMode {
 
     @Override
     public void loop() {
-        leftDrive.setPower(-gamepad1.right_stick_y);
-        rightDrive. setPower(gamepad1.right_stick_y);
+        double moveMultiplier = 0.5;
+        if (gamepad1.right_bumper) {
+            moveMultiplier = 1;
+        }
+        double foreward = -gamepad1.right_stick_y;
+        double right = gamepad1.right_stick_x;
+
+        foreward = foreward * moveMultiplier;
+        right = right * moveMultiplier;
+
+        leftDrive.setPower(foreward + right);
+        rightDrive.setPower(foreward - right);
 
         telemetry.addData("JoyLX", gamepad1.left_stick_x);
         telemetry.addData("JoyLY", -gamepad1.left_stick_y);
         telemetry.addData("JoyRX", gamepad1.right_stick_x);
         telemetry.addData("JoyRY", -gamepad1.right_stick_y);
 
-        if (gamepad1.bWasPressed()) {
-            buttonPresses = buttonPresses + 1;
-        }
-        if (gamepad1.b == true) {
-            telemetry.addData("B Button Presses", buttonPresses);
-        } else {
-            telemetry.addData("B Button Presses", buttonPresses);
-        }
+        telemetry.addData("BButton", bButtonPresses);
 
+        if (gamepad1.bWasPressed()) {
+            bButtonPresses = bButtonPresses + 1;
+        }
     }
 }
