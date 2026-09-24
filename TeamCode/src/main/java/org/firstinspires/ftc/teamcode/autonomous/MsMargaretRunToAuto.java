@@ -22,6 +22,16 @@ public class MsMargaretRunToAuto extends OpMode {
 
     @Override
     public void loop() {
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        leftMotor.setTargetPosition(21280);
+        rightMotor.setTargetPosition(21280);
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        leftMotor.setPower(1);
+        rightMotor.setPower(1);
     }
 }
