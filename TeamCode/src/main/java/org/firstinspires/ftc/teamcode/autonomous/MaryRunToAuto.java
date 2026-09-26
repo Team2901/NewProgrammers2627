@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Autonomous
-public class MsMargaretRunToAuto extends OpMode {
+public class MaryRunToAuto extends OpMode {
     DcMotor leftMotor;
     DcMotor rightMotor;
 
@@ -14,11 +14,10 @@ public class MsMargaretRunToAuto extends OpMode {
     double wheelRadiusInches = 1.88976378;
     double wheelCircumferenceInches = 2 * Math.PI * wheelRadiusInches;
     double targetWheelRotations = targetDistanceInches / wheelCircumferenceInches;
-    double motorToWheelGearRatio = 1.0/1.0; // # of wheel gear teeth / # of motor gear teeth
-    double targetMotorRotations = targetWheelRotations * motorToWheelGearRatio;
-    double motorEncoderTicksPerRotation = ((((1+(46/17.0))) * (1+(46/11.0))) * 28); // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
-    int targetMotorEncoderTicks = (int) (targetMotorRotations * motorEncoderTicksPerRotation);
-
+    double motorToWheelGearRatio = 1.0; // ratio # of wheel gear teeth / # of motor gear teeth
+    double tagetMotorRotations = targetWheelRotations * motorToWheelGearRatio;
+    double motorEncoderTicketsPerRotation = ((((1+(46/17.0))))) * (1+(46/11.0)) * 28;
+    int targetMotorEncoderTicks = (int) (tagetMotorRotations * motorEncoderTicketsPerRotation);
 
     @Override
     public void init() {
@@ -46,16 +45,15 @@ public class MsMargaretRunToAuto extends OpMode {
         leftMotor.setPower(1);
         rightMotor.setPower(1);
 
-        telemetry.addData("power", leftMotor.getPower());
-        telemetry.addData("mode", leftMotor.getMode());
-        telemetry.addData("target", leftMotor.getTargetPosition());
-        telemetry.addData("current", leftMotor.getCurrentPosition());
-        telemetry.addData("busy", leftMotor.isBusy());
+        telemetry.addData("power",leftMotor.getPower());
+        telemetry.addData("mode",leftMotor.getMode());
+        telemetry.addData("target",leftMotor.getTargetPosition());
+        telemetry.addData("current",leftMotor.getCurrentPosition());
+        telemetry.addData("busy",leftMotor.isBusy());
 
 
-        telemetry.addData("wheelCircumferenceInches",wheelCircumferenceInches);
-        telemetry.addData("targetWheelRotations",targetWheelRotations);
-        telemetry.addData("targetMotorRotations",targetMotorRotations);
-        telemetry.addData("targetMotorEncoderTicks",targetMotorEncoderTicks);
+
+
+
     }
 }
