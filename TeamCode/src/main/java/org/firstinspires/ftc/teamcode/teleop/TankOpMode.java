@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(group = "Mary")
-public class MaryOpMode extends OpMode {
+public class TankOpMode extends OpMode {
     int buttonPresses = 0;
     DcMotor leftMotor;
     DcMotor rightMotor;
@@ -23,19 +23,19 @@ public class MaryOpMode extends OpMode {
     @Override
     public void loop() {
 
-        double moveMultiplier = 0.5;
+        double moveMultiplier = 1.0;
         double foward = -gamepad1.right_stick_y;
         double right = gamepad1.right_stick_x;
 
         if (gamepad1.right_bumper) {
-            moveMultiplier = 1.0;
+            moveMultiplier = 0.5;
         }
 
         foward = foward * moveMultiplier;
         right = right * moveMultiplier;
 
-        leftMotor.setPower(foward + right);
-        rightMotor.setPower(foward - right);
+        leftMotor.setPower(-gamepad1.left_stick_y);
+        rightMotor.setPower(-gamepad1.right_stick_y);
 
         telemetry.addData("JoyLX",gamepad1.left_stick_x);
 
