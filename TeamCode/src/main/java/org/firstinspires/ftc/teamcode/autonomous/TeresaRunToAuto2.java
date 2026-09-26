@@ -1,0 +1,76 @@
+package org.firstinspires.ftc.teamcode.autonomous;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+@Autonomous
+public class TeresaRunToAuto2 extends OpMode {
+    DcMotor leftFrontMotor;
+    DcMotor rightFrontMotor;
+    DcMotor leftBackMotor;
+    DcMotor rightBackMotor;
+
+
+    double targetDistanceInches = 4 * 12; // 4 feet
+    double wheelRadiusInches = 1.88976378;
+    double wheelCircumferenceInches = 2 * Math.PI * wheelRadiusInches;
+    double targetWheelRotations = targetDistanceInches / wheelCircumferenceInches;
+    double motorToWheelGearRatio = 1.0; // # of wheel gear teeth / # of motor gear teeth
+    double targetMotorRotations = targetWheelRotations * motorToWheelGearRatio;
+    double motorEncoderTicksPerRotation = ((((1+(46/17.0))))) * (1+(46/11.0)) * 28;
+    int targetMotorEncoderTicks = (int) (targetMotorRotations * motorEncoderTicksPerRotation);
+
+
+    @Override
+    public void init() {
+
+        leftFrontMotor = hardwareMap.get(DcMotor.class, "frontLeft");
+        rightFrontMotor = hardwareMap.get(DcMotor.class, "frontRight");
+        leftBackMotor = hardwareMap.get(DcMotor.class, "backLeft");
+        rightBackMotor = hardwareMap.get(DcMotor.class, "backRight");
+
+        leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+    }
+
+    @Override
+    public void loop() {
+        
+        leftFrontMotor.setTargetPosition(targetMotorEncoderTicks);
+        rightFrontMotor.setTargetPosition(targetMotorEncoderTicks);
+        leftBackMotor.setTargetPosition(targetMotorEncoderTicks);
+        rightBackMotor.setTargetPosition(targetMotorEncoderTicks);
+
+        leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        leftFrontMotor.setPower(1);
+        rightFrontMotor.setPower(1);
+        leftBackMotor.setPower(1);
+        rightBackMotor.setPower(1);
+
+        telemetry.addData("power", leftFrontMotor.getPower());
+        telemetry.addData("mode", leftFrontMotor.getMode());
+        telemetry.addData("target", leftFrontMotor.getTargetPosition());
+        telemetry.addData("current", leftFrontMotor.getCurrentPosition());
+        telemetry.addData("busy", leftFrontMotor.isBusy());
+        telemetry.addData("power", leftBackMotor.getPower());
+        telemetry.addData("mode", leftBackMotor.getMode());
+        telemetry.addData("target", leftBackMotor.getTargetPosition());
+        telemetry.addData("current", leftBackMotor.getCurrentPosition());
+        telemetry.addData("busy", leftBackMotor.isBusy());
+
+    }
+}
