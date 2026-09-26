@@ -7,8 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Autonomous
 public class DanielAutonomous extends OpMode {
-    DcMotor leftMotor;
-    DcMotor rightMotor;
+    DcMotor frontRight;
+    DcMotor frontLeft;
+    DcMotor backLeft;
+    DcMotor backRight;
+
 
     double targetDistanceInches = 4 * 12;
     double wheelRadiusInches = 1.88976378;
@@ -17,37 +20,50 @@ public class DanielAutonomous extends OpMode {
     double motorToWheelRatio = 1.0/1.0;
     double targetMotorRotations = targetWheelRotations * motorToWheelRatio;
     double motorEncoderTicksPerRotation = 537.7;
-    double targetMotorEncoderTicks = (int) (targetMotorRotations * motorEncoderTicksPerRotation);
+    int targetMotorEncoderTicks = (int) (targetMotorRotations * motorEncoderTicksPerRotation);
 
     @Override
     public void init() {
 
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
+        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
+        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        backRight = hardwareMap.get(DcMotor.class, "backRight");
 
-        leftMotor = hardwareMap.get(DcMotor.class, "leftDrive");
-        rightMotor = hardwareMap.get(DcMotor.class, "rightDrive");
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
+
     }
 
     @Override
     public void loop() {
 
-        leftMotor.setTargetPosition();
-        rightMotor.setTargetPosition(21280);
+        frontRight.setTargetPosition(targetMotorEncoderTicks);
+        frontLeft.setTargetPosition(targetMotorEncoderTicks);
+        backLeft.setTargetPosition(targetMotorEncoderTicks);
+        backRight.setTargetPosition(targetMotorEncoderTicks);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        leftMotor.setPower(1);
-        rightMotor.setPower(1);
+        frontRight.setPower(1);
+        frontLeft.setPower(1);
+        backRight.setPower(1);
+        backLeft.setPower(1);
 
-        telemetry.addData("power", leftMotor.getPower());
-        telemetry.addData("mode",leftMotor.getMode());
-        telemetry.addData("target", leftMotor.getTargetPosition());
-        telemetry.addData("current", leftMotor.getCurrentPosition());
-        telemetry.addData("busy", leftMotor.isBusy());
+        telemetry.addData("power", frontRight.getPower());
+        telemetry.addData("mode", frontRight.getMode());
+        telemetry.addData("target", frontRight.getTargetPosition());
+        telemetry.addData("current", frontRight.getCurrentPosition());
+        telemetry.addData("busy", frontRight.isBusy());
     }
 }
