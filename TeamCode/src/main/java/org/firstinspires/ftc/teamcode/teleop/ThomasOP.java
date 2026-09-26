@@ -26,17 +26,18 @@ public class ThomasOP extends OpMode {
     @Override
     public void loop() {
 
-        double moveMultiplier = 0.45;
+        //steering code for model car
+        double moveMultiplier = 0.30;
         double forward = -gamepad1.right_stick_y;
         double right= gamepad1.right_stick_x;
 
         forward = forward * moveMultiplier;
         right = right * moveMultiplier;
 
+        // Right and left axis controls
         leftDrive.setPower(-gamepad1.right_stick_y + gamepad1.right_stick_x);
         rightDrive.setPower(-gamepad1.right_stick_y - gamepad1.right_stick_x);
 
         telemetry.addData("joyLx", gamepad1.left_stick_x);
-
         }
 }
