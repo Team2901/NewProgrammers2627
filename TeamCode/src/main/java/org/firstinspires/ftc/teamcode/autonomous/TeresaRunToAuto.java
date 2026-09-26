@@ -38,6 +38,8 @@ public class TeresaRunToAuto extends OpMode {
     @Override
     public void loop() {
 
+
+        int targetPosition = 21280;
         leftMotor.setTargetPosition(targetMotorEncoderTicks);
         rightMotor.setTargetPosition(targetMotorEncoderTicks);
 
