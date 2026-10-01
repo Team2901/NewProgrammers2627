@@ -16,7 +16,8 @@ public class MsMargaretRunToAuto extends OpMode {
     double targetWheelRotations = targetDistanceInches / wheelCircumferenceInches;
     double motorToWheelGearRatio = 1.0/1.0; // # of wheel gear teeth / # of motor gear teeth
     double targetMotorRotations = targetWheelRotations * motorToWheelGearRatio;
-    double motorEncoderTicksPerRotation = ((((1+(46/17.0))) * (1+(46/11.0))) * 28); // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
+    double motorEncoderTicksPerRotation = ((((1+(46/17.0))) * (1+(46/11.0))) * 28); // 537.7
+    // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
     int targetMotorEncoderTicks = (int) (targetMotorRotations * motorEncoderTicksPerRotation);
 
 
