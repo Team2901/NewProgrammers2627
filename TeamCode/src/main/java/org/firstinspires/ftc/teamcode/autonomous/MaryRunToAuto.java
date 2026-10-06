@@ -5,51 +5,41 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.hardware.ClawBot;
+
 @Autonomous
 public class MaryRunToAuto extends OpMode {
-    DcMotor leftMotor;
-    DcMotor rightMotor;
+    ClawBot robot = new ClawBot();
 
     double targetDistanceInches = 4 * 12; // 4 feet
-    double wheelRadiusInches = 1.88976378;
-    double wheelCircumferenceInches = 2 * Math.PI * wheelRadiusInches;
-    double targetWheelRotations = targetDistanceInches / wheelCircumferenceInches;
-    double motorToWheelGearRatio = 1.0; // ratio # of wheel gear teeth / # of motor gear teeth
-    double tagetMotorRotations = targetWheelRotations * motorToWheelGearRatio;
-    double motorEncoderTicketsPerRotation = ((((1+(46/17.0))))) * (1+(46/11.0)) * 28;
-    int targetMotorEncoderTicks = (int) (tagetMotorRotations * motorEncoderTicketsPerRotation);
+    double targetWheelRotations = targetDistanceInches / robot.wheelCircumferenceInches;
+    double tagetMotorRotations = targetWheelRotations * robot.motorToWheelGearRatio;
+    int targetMotorEncoderTicks = (int) (tagetMotorRotations * robot.motorEncoderTicksPerRotation);
 
     @Override
     public void init() {
 
-        leftMotor = hardwareMap.get(DcMotor.class, "leftDrive");
-        rightMotor = hardwareMap.get(DcMotor.class, "rightDrive");
-
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.init(hardwareMap, telemetry);
 
     }
 
     @Override
     public void loop() {
 
-        leftMotor.setTargetPosition(targetMotorEncoderTicks);
-        rightMotor.setTargetPosition(targetMotorEncoderTicks);
+        robot.leftMotor.setTargetPosition(targetMotorEncoderTicks);
+        robot.rightMotor.setTargetPosition(targetMotorEncoderTicks);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        leftMotor.setPower(1);
-        rightMotor.setPower(1);
+        robot.leftMotor.setPower(1);
+        robot.rightMotor.setPower(1);
 
-        telemetry.addData("power",leftMotor.getPower());
-        telemetry.addData("mode",leftMotor.getMode());
-        telemetry.addData("target",leftMotor.getTargetPosition());
-        telemetry.addData("current",leftMotor.getCurrentPosition());
-        telemetry.addData("busy",leftMotor.isBusy());
+        telemetry.addData("power",robot.leftMotor.getPower());
+        telemetry.addData("mode",robot.leftMotor.getMode());
+        telemetry.addData("target",robot.leftMotor.getTargetPosition());
+        telemetry.addData("current",robot.leftMotor.getCurrentPosition());
+        telemetry.addData("busy",robot.leftMotor.isBusy());
 
 
 

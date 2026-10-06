@@ -8,17 +8,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class ClawBot {
 
-    DcMotor leftMotor;
-    DcMotor rightMotor;
-
-    double targetDistanceInches = 4 * 12; // 4 feet
-    double wheelRadiusInches = 1.88976378;
-    double wheelCircumferenceInches = 2 * Math.PI * wheelRadiusInches;
-    double targetWheelRotations = targetDistanceInches / wheelCircumferenceInches;
-    double motorToWheelGearRatio = 1.0 / 1.0; // # of wheel gear teeth / # of motor gear teeth
-    double targetMotorRotations = targetWheelRotations * motorToWheelGearRatio;
-    double motorEncoderTicksPerRotation = ((((1 + (46 / 17.0))) * (1 + (46 / 11.0))) * 28); // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
-    int targetMotorEncoderTicks = (int) (targetMotorRotations * motorEncoderTicksPerRotation);
+    public DcMotor leftMotor;
+    public DcMotor rightMotor;
+    public double wheelRadiusInches = 1.88976378;
+    public double wheelCircumferenceInches = 2 * Math.PI * wheelRadiusInches;
+    public double motorToWheelGearRatio = 1.0 / 1.0; // # of wheel gear teeth / # of motor gear teeth
+    public double motorEncoderTicksPerRotation = ((((1 + (46 / 17.0))) * (1 + (46 / 11.0))) * 28); // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
     public void init(HardwareMap hardwareMap, Telemetry telemetry){
 
         leftMotor = hardwareMap.get(DcMotor.class, "leftDrive");

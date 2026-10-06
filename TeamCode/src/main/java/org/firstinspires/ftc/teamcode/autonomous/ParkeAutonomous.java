@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @Autonomous
 public class ParkeAutonomous extends OpMode {
     DcMotor leftMotor;
-    DcMotor rightMotor
+    DcMotor rightMotor;
     double targetDistanceInches = 4 * 12; // 4 feet
     double wheelRadiusInches = 1.88976378;
     double wheelCircumferenceInches = 2 * Math.PI * wheelRadiusInches;
