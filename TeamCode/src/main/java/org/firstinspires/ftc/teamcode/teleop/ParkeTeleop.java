@@ -11,16 +11,28 @@ public class ParkeTeleop extends OpMode {
     DcMotor leftDrive;
     DcMotor rightDrive;
 
+    double WHEEL_DIAMETER = 3.75;
+    double WHEEL_CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
+    double TICKS = 537.7;
+
     public void init() {
         telemetry.addData("Name", "Parke");
         leftDrive = hardwareMap.get(DcMotor.class,"leftDrive");
         rightDrive = hardwareMap.get(DcMotor.class,"rightDrive");
         leftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         rightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftDrive.setTargetPosition(2);
+        leftDrive.setTargetPosition(2);
     }
 
     @Override
     public void loop() {
+
+        leftDrive.setTargetPosition(2);
+        leftDrive.setTargetPosition(2);
+
+
+
         double moveMultiplier = 0.5;
         if (gamepad1.right_bumper) {
             moveMultiplier = 1;
