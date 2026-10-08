@@ -13,12 +13,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-public class ClawBot {
+public class MechanumBot {
 
     public Telemetry telemetry;
 
-    public DcMotorEx leftMotor;
-    public DcMotorEx rightMotor;
+    public DcMotorEx frontLeft;
+    public DcMotorEx backLeft;
+    public DcMotorEx frontRight;
+    public DcMotorEx backRight;
 
     public double wheelRadiusInches = 1.88976378;
     public double wheelCircumferenceInches = 2 * Math.PI * wheelRadiusInches;
@@ -37,17 +39,25 @@ public class ClawBot {
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
-        leftMotor = hardwareMap.get(DcMotorEx.class, "leftDrive");
-        rightMotor = hardwareMap.get(DcMotorEx.class, "rightDrive");
+        frontLeft = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotorEx.class, "frontRight");
+        backLeft = hardwareMap.get(DcMotorEx.class, "backLeft");
+        backRight = hardwareMap.get(DcMotorEx.class, "backRight");
 
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         initPinpoint(hardwareMap);
 
