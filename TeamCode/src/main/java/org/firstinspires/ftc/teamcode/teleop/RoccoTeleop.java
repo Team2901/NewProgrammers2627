@@ -37,6 +37,7 @@ public class RoccoTeleop extends OpMode {
         robot.leftMotor.setPower( forward + right );
         robot.rightMotor.setPower( forward - right);
 
+        robot.pinpoint.update();
         Pose2D currentPose = robot.pinpoint.getPosition();
         telemetry.addData("Heading", currentPose.getHeading(AngleUnit.DEGREES));
         telemetry.addData("X Coordinate", currentPose.getX(DistanceUnit.INCH));
