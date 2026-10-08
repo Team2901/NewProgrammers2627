@@ -43,7 +43,7 @@ plugins {
  */
 
 javafx {
-    version = '17.0.6'
+    version = '21.0.2'
     // The simulator is FXML + Controls only (no javafx.media / javafx.swing usage found).
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics']
 }
