@@ -1,21 +1,14 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-
 @Autonomous
 public class GiancarloAuto extends OpMode {
-    DcMotor leftFrontMotor;
-    DcMotor rightFrontMotor;
-    DcMotor leftBackMotor;
-    DcMotor rightBackMotor;
+    DcMotor leftMotor;
+    DcMotor rightMotor;
 
     double targetDistanceInches = 4 * 12; // 4 feet
     double wheelRadiusInches = 1.88976378;
@@ -23,77 +16,45 @@ public class GiancarloAuto extends OpMode {
     double targetWheelRotations = targetDistanceInches / wheelCircumferenceInches;
     double motorToWheelGearRatio = 1.0/1.0; // # of wheel gear teeth / # of motor gear teeth
     double targetMotorRotations = targetWheelRotations * motorToWheelGearRatio;
-    double motorEncoderTicksPerRotation = ((((1+(46/17.0))) * (1+(46/11.0))) * 28); // 537.7
-    // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
+    double motorEncoderTicksPerRotation = ((((1+(46/17.0))) * (1+(46/11.0))) * 28); // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
     int targetMotorEncoderTicks = (int) (targetMotorRotations * motorEncoderTicksPerRotation);
-    GoBildaPinpointDriver pinpoint;
+
 
     @Override
     public void init() {
+        telemetry.addData("Name", "Giancarlo");
 
-        leftFrontMotor = hardwareMap.get(DcMotor.class, "frontLeft");
-        rightFrontMotor = hardwareMap.get(DcMotor.class, "frontRight");
-        leftBackMotor = hardwareMap.get(DcMotor.class, "backLeft");
-        rightBackMotor = hardwareMap.get(DcMotor.class, "backRight");
+        leftMotor = hardwareMap.get(DcMotor.class, "leftDrive");
+        rightMotor = hardwareMap.get(DcMotor.class, "rightDrive");
 
-        leftFrontMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightFrontMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftBackMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBackMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        leftFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFrontMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBackMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        configurePinpoint();
-
-    }
-
-    private void configurePinpoint() {
-        pinpoint.setOffsets(-84.0, -168.0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
-        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void loop() {
+        leftMotor.setTargetPosition(targetMotorEncoderTicks);
+        rightMotor.setTargetPosition(targetMotorEncoderTicks);
 
-        leftFrontMotor.setTargetPosition(targetMotorEncoderTicks);
-        rightFrontMotor.setTargetPosition(targetMotorEncoderTicks);
-        leftBackMotor.setTargetPosition(targetMotorEncoderTicks);
-        rightBackMotor.setTargetPosition(targetMotorEncoderTicks);
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        leftFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightFrontMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightBackMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftMotor.setPower(1);
+        rightMotor.setPower(1);
 
-        leftFrontMotor.setPower(1);
-        rightFrontMotor.setPower(1);
-        leftBackMotor.setPower(1);
-        rightBackMotor.setPower(1);
-
-        pinpoint.update();
-        Pose2D pose2D = pinpoint.getPosition();
-
-        telemetry.addData("power", leftFrontMotor.getPower());
-        telemetry.addData("mode", leftFrontMotor.getMode());
-        telemetry.addData("target", leftFrontMotor.getTargetPosition());
-        telemetry.addData("current", leftFrontMotor.getCurrentPosition());
-        telemetry.addData("busy", leftFrontMotor.isBusy());
+        telemetry.addData("power", leftMotor.getPower());
+        telemetry.addData("mode", leftMotor.getMode());
+        telemetry.addData("target", leftMotor.getTargetPosition());
+        telemetry.addData("current", leftMotor.getCurrentPosition());
+        telemetry.addData("busy", leftMotor.isBusy());
 
 
         telemetry.addData("wheelCircumferenceInches",wheelCircumferenceInches);
         telemetry.addData("targetWheelRotations",targetWheelRotations);
         telemetry.addData("targetMotorRotations",targetMotorRotations);
         telemetry.addData("targetMotorEncoderTicks",targetMotorEncoderTicks);
-
-        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
-
     }
 }
