@@ -122,7 +122,76 @@ public class MechanumBot {
         pinpoint.resetPosAndIMU();
 
         // Set the location of the robot - this should be the place you are starting the robot from
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
+        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 90));
+    }
+
+    public Pose2D pose2DDelta(Pose2D poseA, Pose2D poseB) {
+        return new Pose2D(DistanceUnit.INCH,
+                poseA.getX(DistanceUnit.INCH) - poseB.getX(DistanceUnit.INCH),
+                poseA.getY(DistanceUnit.INCH) - poseB.getY(DistanceUnit.INCH),
+                AngleUnit.DEGREES,
+                angleDiff(poseA.getHeading(AngleUnit.DEGREES), poseB.getHeading(AngleUnit.DEGREES)));
+    }
+
+    public double getError(double value, double errorScaler, double maxThreshold, double minThreshold) {
+        double value1 = value * errorScaler;
+        if (Math.abs(value1) > maxThreshold) {
+            return Math.signum(value1) * maxThreshold;
+        } else if (Math.abs(value1) < minThreshold) {
+            return 0;
+        } else {
+            return value1;
+        }
+    }
+
+    public void poseTelemetry(String caption, Pose2D pose) {
+        telemetry.addData(caption, "%.2f %.2f %.2f", pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), pose.getHeading(AngleUnit.DEGREES));
+    }
+
+    public void movePowerRelRobot(double xPowerRelRobot, double yPowerRelRobot, double counterClockwisePower) {
+        // xPowerRelRobot = "forward", yPowerRelRobot = "left"
+        double frontLeftPower = xPowerRelRobot - yPowerRelRobot - counterClockwisePower;
+        double frontRightPower = xPowerRelRobot + yPowerRelRobot + counterClockwisePower;
+        double backLeftPower = xPowerRelRobot + yPowerRelRobot - counterClockwisePower;
+        double backRightPower = xPowerRelRobot - yPowerRelRobot + counterClockwisePower;
+
+        // If any power is outside -1 to 1, scale all four down by the same amount
+        // so the robot still moves in the same direction.
+        double max = Math.max(1.0, Math.max(
+                Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)),
+                Math.max(Math.abs(backLeftPower), Math.abs(backRightPower))));
+
+        frontLeft.setPower(frontLeftPower / max);
+        frontRight.setPower(frontRightPower / max);
+        backLeft.setPower(backLeftPower / max);
+        backRight.setPower(backRightPower / max);
+    }
+
+    public double[] translatePowerToRelRobot(double xDiffRelField, double yDiffRelField, double robotHeadingRelField) {
+        double xyMag = Math.hypot(xDiffRelField, yDiffRelField);
+        double xyHeadingRelField = Math.toDegrees(Math.atan2(yDiffRelField, xDiffRelField));
+        double xyHeadingRelRobot = xyHeadingRelField - robotHeadingRelField;
+        double xDiffRelRobot = xyMag * Math.cos(Math.toRadians(xyHeadingRelRobot));
+        double yDiffRelRobot = xyMag * Math.sin(Math.toRadians(xyHeadingRelRobot));
+        return new double[]{xDiffRelRobot, yDiffRelRobot};
+    }
+
+    public void movePowerRelField(double xPowerRelField, double yPowerRelField, double counterClockwisePower, double robotHeadingRelField) {
+        double[] xyPowerRelRobot = translatePowerToRelRobot(xPowerRelField, yPowerRelField, robotHeadingRelField);
+        movePowerRelRobot(xyPowerRelRobot[0], xyPowerRelRobot[1], counterClockwisePower);
+    }
+
+    public void moveTowardsRelField(Pose2D targetPoseRelField) {
+        Pose2D currentPoseRelField = pinpoint.getPosition();
+        Pose2D poseDeltaRelField = pose2DDelta(targetPoseRelField, currentPoseRelField);
+        double xPowerRelField = getError(poseDeltaRelField.getX(DistanceUnit.INCH), 1.0/24, 1, 0.01);
+        double yPowerRelField = getError(poseDeltaRelField.getY(DistanceUnit.INCH), 1.0/24, 1, 0.01);
+        double counterClockwisePower = getError(poseDeltaRelField.getHeading(AngleUnit.DEGREES), 1.0/30, 1, 0.01);
+        movePowerRelField(xPowerRelField, yPowerRelField, counterClockwisePower, currentPoseRelField.getHeading(AngleUnit.DEGREES));
+    }
+
+    public double angleDiff(double targetHeadingRelField, double robotHeadingRelField) {
+        return AngleUnit.normalizeDegrees(targetHeadingRelField - robotHeadingRelField);
     }
 
 }
