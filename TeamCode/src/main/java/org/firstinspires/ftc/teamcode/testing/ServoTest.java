@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@TeleOp(name = "ServoTest", group = "test")
+@TeleOp(group = "test")
 public class ServoTest extends OpMode {
     List<Map.Entry<String, Servo>> servoList = new ArrayList<>();
-    // Creates list/map? of all servos on device (robor)
+    // Creates list/map? of all servos on device
 
     Integer activeIndex = (0);
     // Holds the value of the current servo being tested
 
     public void help() {
-        telemetry.addData("dpad up/pdown", "select servo");
+        telemetry.addData("dpad up/down", "select servo");
         telemetry.addData("a/y", "+/- 0.1");
         telemetry.addData("b/x", "+/- 0.01");
         telemetry.addLine("");
@@ -34,7 +34,7 @@ public class ServoTest extends OpMode {
 
     @Override
     public void init() {
-        // Finds all of the servos on device (robor) using the hardwareMap
+        // Finds all of the servos on device using the hardwareMap
         Set<Map.Entry<String, Servo>> servoSet = this.hardwareMap.servo.entrySet();
 
         // Adds all of those servos to our servo list

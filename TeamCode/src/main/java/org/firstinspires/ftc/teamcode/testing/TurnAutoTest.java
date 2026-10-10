@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.autonomous.AbstractAutonomous;
 
-@Autonomous(name = "TurnAutoTest", group = "test")
+@Disabled
+@Autonomous(group = "test")
 public class TurnAutoTest extends AbstractAutonomous {
     boolean runMotor = false;
     @Override

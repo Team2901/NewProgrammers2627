@@ -4,9 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 public abstract class AbstractAutonomous extends LinearOpMode{
-    public Hardware robot = new Hardware();
+    public DecodeHardware robot = new DecodeHardware();
 
     // setup RED and BLUE alliances
     public enum Alliance {

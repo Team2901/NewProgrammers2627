@@ -3,19 +3,21 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 
 import java.util.ArrayList;
 
-@TeleOp(name = "LimelightTeleop")
+@Disabled
+@TeleOp(group = "example")
 public class LimelightTeleop extends OpMode {
-    Hardware robot = new Hardware();
+    DecodeHardware robot = new DecodeHardware();
     Limelight3A limelight3A;
     Double targetTurnAngle;
     double turningPower = 0;

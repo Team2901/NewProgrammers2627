@@ -7,7 +7,7 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathBuilder;
 import com.pedropathing.paths.PathChain;
 
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -106,11 +106,11 @@ class StateMachine {
     }
 
     static class Move extends MyState {
-        Hardware robot;
+        DecodeHardware robot;
         int k;
         int x;
         int y;
-        public Move(Hardware robot, int _k, int _x, int _y){
+        public Move(DecodeHardware robot, int _k, int _x, int _y){
             k = _k;
             x = _x;
             y = _y;

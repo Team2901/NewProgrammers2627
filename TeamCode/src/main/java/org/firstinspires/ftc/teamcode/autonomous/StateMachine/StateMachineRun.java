@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomous.StateMachine;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.autonomous.AbstractAutonomous;
@@ -8,7 +9,8 @@ import org.firstinspires.ftc.teamcode.autonomous.AbstractAutonomous;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@Autonomous (name = "StateMachineRun")
+@Disabled
+@Autonomous (group = "example")
 public class StateMachineRun extends AbstractAutonomous {
     ElapsedTime timer = new ElapsedTime();
     int k;

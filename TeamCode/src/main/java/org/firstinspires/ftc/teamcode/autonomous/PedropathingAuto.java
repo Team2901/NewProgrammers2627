@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 
+import android.annotation.SuppressLint;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.configurables.annotations.IgnoreConfigurable;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -10,7 +12,6 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
-import com.pedropathing.paths.PathConstraints;
 import com.pedropathing.util.PoseHistory;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -18,7 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.hardware.Hardware;
+import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.MyDrawing;
 //import org.firstinspires.ftc.teamcode.pedroPathing.Drawing;
@@ -38,7 +39,7 @@ public class PedropathingAuto extends OpMode {
     public Integer obeliskID = null;
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
-    public Hardware robot = new Hardware();
+    public DecodeHardware robot = new DecodeHardware();
     private boolean automatedDrive;
 
 
@@ -76,6 +77,7 @@ public class PedropathingAuto extends OpMode {
         //If you don't pass anything in, it uses the default (false)
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
 
