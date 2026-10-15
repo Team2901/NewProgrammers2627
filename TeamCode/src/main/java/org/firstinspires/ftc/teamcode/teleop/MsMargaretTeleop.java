@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.hardware.ClawBot;
 @TeleOp(group = "MsMargaret")
 public class MsMargaretTeleop extends OpMode {
 
-    // MechanumBot robot = new MechanumBot();
     ClawBot robot = new ClawBot();
 
     @Override
@@ -29,20 +28,8 @@ public class MsMargaretTeleop extends OpMode {
         robot.leftMotor.setPower(forwardPower + turnPower);
         robot.rightMotor.setPower(forwardPower -turnPower);
 
-        /*
-        robot.frontLeft.setPower(forwardPower + rightPower + turnPower);
-        robot.frontRight.setPower(forwardPower - rightPower - turnPower);
-        robot.backLeft.setPower(forwardPower - rightPower + turnPower);
-        robot.backRight.setPower(forwardPower + rightPower - turnPower);
-         */
-
         robot.pinpoint.update();
         Pose2D pose2D = robot.pinpoint.getPosition();
 
-        telemetry.addData("imu angle (DEGREES)", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-
-        telemetry.addData("X coordinate (IN)", pose2D.getX(DistanceUnit.INCH));
-        telemetry.addData("Y coordinate (IN)", pose2D.getY(DistanceUnit.INCH));
-        telemetry.addData("Heading angle (DEGREES)", pose2D.getHeading(AngleUnit.DEGREES));
     }
 }
