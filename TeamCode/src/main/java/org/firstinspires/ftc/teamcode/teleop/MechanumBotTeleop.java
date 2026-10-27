@@ -35,9 +35,13 @@ public class MechanumBotTeleop extends OpMode {
         if (gamepad1.a) {
             robot.moveTowardsRelField(targetPoseRelField);
         } else {
-            double targetHeadingRelField = (Math.abs(rightStickMag) > 0.1) ? rightStickAngle : robotHeadingRelField;
-            double targetHeadingRelRobot = robot.angleDiff(targetHeadingRelField, robotHeadingRelField);
-            double counterClockwisePower = robot.getError(targetHeadingRelRobot, 1.0/30, 1, 0);
+            double counterClockwisePower;
+            if (Math.abs(rightStickMag) > 0.1) {
+                double targetHeadingRelRobot = robot.angleDiff(rightStickAngle, robotHeadingRelField);
+                counterClockwisePower = robot.getError(targetHeadingRelRobot, 1.0/30, 1, 0);
+            } else {
+                counterClockwisePower = 0;
+            }
             robot.movePowerRelField(xPowerRelField, yPowerRelField, counterClockwisePower, robotHeadingRelField);
         }
 
