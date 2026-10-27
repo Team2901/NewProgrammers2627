@@ -101,15 +101,15 @@ public class Tuning extends SelectableOpMode {
 
     public static void drawCurrent() {
         try {
-            MyDrawing.drawRobot(follower.getPose());
-            MyDrawing.sendPacket();
+            Drawing.drawRobot(follower.getPose());
+            Drawing.sendPacket();
         } catch (Exception e) {
             throw new RuntimeException("Drawing failed " + e);
         }
     }
 
     public static void drawCurrentAndHistory() {
-        MyDrawing.drawPoseHistory(poseHistory);
+        Drawing.drawPoseHistory(poseHistory);
         drawCurrent();
     }
 

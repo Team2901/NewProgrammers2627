@@ -4,12 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.hardware.MechanumBot;
 
-@TeleOp(group = "__MsMargaret")
-public class MsMargaretTeleop extends OpMode {
+@TeleOp(group = "MechanumBot")
+public class MechanumBotTeleop extends OpMode {
 
     MechanumBot robot = new MechanumBot();
     Pose2D targetPoseRelField;
