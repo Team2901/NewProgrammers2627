@@ -38,7 +38,7 @@ public class MsMargaretTeleop extends OpMode {
         } else {
             double targetHeadingRelField = (Math.abs(leftStickMag) > 0.1) ? leftStickAngle : robotHeadingRelField;
             double targetHeadingRelRobot = robot.angleDiff(targetHeadingRelField, robotHeadingRelField);
-            double counterClockwisePower = robot.getError(targetHeadingRelRobot, 1.0/30, 1, 0.01);
+            double counterClockwisePower = robot.getError(targetHeadingRelRobot, 1.0/30, 1, 0);
             robot.movePowerRelField(xPowerRelField, yPowerRelField, counterClockwisePower, robotHeadingRelField);
         }
 

@@ -238,7 +238,7 @@ public class MechanumBot {
 
         // Step 2. Clip the result to the max.
         // Step 3. Clip the result to the min.
-        result = Range.clip(result, minThreshold, maxThreshold);
+        result = Math.signum(result) * Range.clip(Math.abs(result), minThreshold, maxThreshold);
 
         return result;
     }
