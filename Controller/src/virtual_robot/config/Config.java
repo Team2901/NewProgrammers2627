@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.configuration.MotorType;
 import javafx.scene.image.Image;
 import virtual_robot.controller.Game;
 import virtual_robot.controller.VirtualBot;
-import virtual_robot.robots.classes.ClawBot;
+import virtual_robot.robots.classes.BioBuzzV1;
 import virtual_robot.games.NoGame;
 
 /**
@@ -27,7 +27,7 @@ public class Config {
     /**
      * The image object for the field.
      */
-    public static final Image BACKGROUND = new Image("/virtual_robot/assets/biobuzz648.bmp");
+    public static final Image BACKGROUND = new Image("/virtual_robot/assets/biobuzzFieldCoords648.bmp");
 
     /**
      * If true, Virtual Gamepad joysticks and triggers will stay in the position where they were
@@ -59,5 +59,5 @@ public class Config {
     /**
      *  Default Robot Configuration
      */
-    public static final Class<? extends VirtualBot> DEFAULT_BOT = ClawBot.class;
+    public static final Class<? extends VirtualBot> DEFAULT_BOT = BioBuzzV1.class;
 }
