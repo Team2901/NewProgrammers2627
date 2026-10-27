@@ -21,33 +21,27 @@ public class MechanumBotTeleop extends OpMode {
 
     @Override
     public void loop() {
+        robot.update();
 
-        robot.pinpoint.update();
         Pose2D currentPoseRelField = robot.pinpoint.getPosition();
         double robotHeadingRelField = currentPoseRelField.getHeading(AngleUnit.DEGREES);
 
-        double xPowerRelField = gamepad1.right_stick_x;
-        double yPowerRelField = -gamepad1.right_stick_y;
+        double xPowerRelField = gamepad1.left_stick_x;
+        double yPowerRelField = -gamepad1.left_stick_y;
 
-        double leftStickMag = Math.hypot(-gamepad1.left_stick_y, gamepad1.left_stick_x);
-        double leftStickAngle = Math.toDegrees(Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x));
+        double rightStickMag = Math.hypot(-gamepad1.right_stick_y, gamepad1.right_stick_x);
+        double rightStickAngle = Math.toDegrees(Math.atan2(-gamepad1.right_stick_y, gamepad1.right_stick_x));
 
         if (gamepad1.a) {
             robot.moveTowardsRelField(targetPoseRelField);
         } else {
-            double targetHeadingRelField = (Math.abs(leftStickMag) > 0.1) ? leftStickAngle : robotHeadingRelField;
+            double targetHeadingRelField = (Math.abs(rightStickMag) > 0.1) ? rightStickAngle : robotHeadingRelField;
             double targetHeadingRelRobot = robot.angleDiff(targetHeadingRelField, robotHeadingRelField);
             double counterClockwisePower = robot.getError(targetHeadingRelRobot, 1.0/30, 1, 0);
             robot.movePowerRelField(xPowerRelField, yPowerRelField, counterClockwisePower, robotHeadingRelField);
         }
 
         robot.poseTelemetry("currentPoseRelField", currentPoseRelField);
-        robot.poseTelemetry("targetPose", targetPoseRelField);
         robot.poseTelemetry("poseDelta", robot.pose2DDelta(targetPoseRelField, currentPoseRelField));
-
-        telemetry.addData("FL", "%.2f", robot.frontLeft.getPower());
-        telemetry.addData("FR", "%.2f", robot.frontRight.getPower());
-        telemetry.addData("BL", "%.2f", robot.backLeft.getPower());
-        telemetry.addData("BR", "%.2f", robot.backRight.getPower());
     }
 }

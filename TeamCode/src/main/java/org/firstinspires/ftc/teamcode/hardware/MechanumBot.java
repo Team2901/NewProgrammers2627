@@ -111,21 +111,19 @@ public class MechanumBot {
          */
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
                 GoBildaPinpointDriver.EncoderDirection.FORWARD);
-
-        /*
-         * Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary
-         * The IMU will automatically calibrate when first powered on, but recalibrating before running
-         * the robot is a good idea to ensure that the calibration is "good".
-         * resetPosAndIMU will reset the position to 0,0,0 and also recalibrate the IMU.
-         * This is recommended before you run your autonomous, as a bad initial calibration can cause
-         * an incorrect starting value for x, y, and heading.
-         */
-        pinpoint.resetPosAndIMU();
-
-        // Set the location of the robot - this should be the place you are starting the robot from
-        pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 90));
     }
 
+    public void setPinpointPositon(int xInches, double yInches, double headingDegrees) {
+        setPinpointPositon(new Pose2D(DistanceUnit.INCH, xInches, yInches, AngleUnit.DEGREES, headingDegrees));
+    }
+
+    public void setPinpointPositon(Pose2D pose) {
+        pinpoint.setPosition(pose);
+    }
+
+    public void update() {
+        pinpoint.update();
+    }
 
     /**
      * Set the drive motor powers for one step of a move toward a target pose on the field.
@@ -185,7 +183,7 @@ public class MechanumBot {
         double xDiff = poseA.getX(DistanceUnit.INCH) - poseB.getX(DistanceUnit.INCH);
 
         // Step 2. Calculate the Y difference A-B the same way.
-        double yDiff = poseA.getY(DistanceUnit.INCH) - poseB.getX(DistanceUnit.INCH);
+        double yDiff = poseA.getY(DistanceUnit.INCH) - poseB.getY(DistanceUnit.INCH);
 
         // Step 3.  Calculate the heading difference A-B
         // Use the helper method angleDiffDegrees, so the result is the shortest turn.
