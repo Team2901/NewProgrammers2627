@@ -5,10 +5,13 @@ import com.qualcomm.robotcore.hardware.DcMotorExImpl;
 import com.qualcomm.robotcore.hardware.configuration.MotorType;
 
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import org.dyn4j.geometry.Transform;
 import virtual_robot.controller.BotConfig;
+import virtual_robot.controller.VirtualField;
 
 /**
  * Team 2901's BioBuzz robot, version 1.
@@ -60,6 +63,25 @@ public class BioBuzzV1 extends MecanumPhysicsBase {
         intake = (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "intake");
         transfer = (DcMotorExImpl) hardwareMap.get(DcMotorEx.class, "transfer");
         hardwareMap.setActive(false);
+    }
+
+    /// Start with the back of the robot against the bottom (audience) wall, centered on the red
+    /// goal there, facing into the field. In inches from field center, as on the field image.
+    public static final double START_X_INCHES = -12;
+    public static final double START_Y_INCHES = -72 + 9;
+
+    public static final double START_HEADING_RADIANS = 0;
+
+    protected void setUpDisplayGroup(Group group) {
+        super.setUpDisplayGroup(group);
+        x = START_X_INCHES * VirtualField.PIXELS_PER_INCH;
+        y = START_Y_INCHES * VirtualField.PIXELS_PER_INCH;
+        headingRadians = START_HEADING_RADIANS;
+        Transform t = new Transform();
+        t.rotate(headingRadians);
+        t.translate(x / VirtualField.PIXELS_PER_METER, y / VirtualField.PIXELS_PER_METER);
+        chassisBody.setTransform(t);
+        updateDisplay();
     }
 
     protected void createHardwareMap() {

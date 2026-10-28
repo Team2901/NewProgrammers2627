@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.hardware.MechanumBot;
 
@@ -16,7 +17,7 @@ public class MechanumBotTeleop extends OpMode {
     @Override
     public void init() {
         robot.init(hardwareMap, telemetry);
-        targetPoseRelField = robot.pinpoint.getPosition();
+        targetPoseRelField = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 90);
     }
 
     @Override
@@ -43,6 +44,10 @@ public class MechanumBotTeleop extends OpMode {
                 counterClockwisePower = 0;
             }
             robot.movePowerRelField(xPowerRelField, yPowerRelField, counterClockwisePower, robotHeadingRelField);
+        }
+
+        if (gamepad1.b) {
+            robot.setPinpointPositon(0,0, 90);
         }
 
         robot.poseTelemetry("currentPoseRelField", currentPoseRelField);
