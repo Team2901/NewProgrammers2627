@@ -42,18 +42,18 @@ public class MechanumBotAuto extends OpMode {
 
         if (gamepad1.x) {
             startingPose = redAudienceStartingPose;
-        } else if (gamepad1.b) {
+        } else if (gamepad1.a) {
             startingPose = blueAudienceStartingPose;
         } else if (gamepad1.y) {
             startingPose = redFarStartingPose;
-        } else if (gamepad1.a) {
+        } else if (gamepad1.b) {
             startingPose = blueFarStartingPose;
         }
         robot.setPinpointPositon(startingPose);
 
         telemetry.addLine("Select Alliance:");
         telemetry.addLine("X = RED AUDIENCE");
-        telemetry.addLine("B = BLUE AUDIENCE");
+        telemetry.addLine("A = BLUE AUDIENCE");
         telemetry.addLine("Y = RED FAR");
         telemetry.addLine("B = BLUE FAR");
 

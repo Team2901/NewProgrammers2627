@@ -34,6 +34,9 @@ public class MechanumBot {
 
     public IMU imu;
 
+    public DcMotorEx turret;
+    public double turretTicksPerRotation = motorEncoderTicksPerRotation * 5.0; // 5:1 from motor to turret
+
     private static final RevHubOrientationOnRobot.UsbFacingDirection imuUsbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
     private static final RevHubOrientationOnRobot.LogoFacingDirection imuLogoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
 
@@ -63,6 +66,21 @@ public class MechanumBot {
         initPinpoint(hardwareMap);
 
         initImu(hardwareMap);
+
+        initTurret(hardwareMap);
+    }
+
+    private void initTurret(HardwareMap hardwareMap) {
+        try {
+            turret = hardwareMap.get(DcMotorEx.class, "turret");
+        } catch (IllegalArgumentException e) {
+            turret = new MockDcMotor();
+            telemetry.addLine("Can't find turret: making a mock");
+        }
+
+        // Encoder 0 is the turret facing forward, so it must be facing forward when INIT is pressed.
+        turret.setDirection(DcMotorSimple.Direction.FORWARD);
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     private void initImu(HardwareMap hardwareMap) {
@@ -123,6 +141,44 @@ public class MechanumBot {
 
     public void update() {
         pinpoint.update();
+    }
+
+    /**
+     * Turret angle relative to the robot, in degrees: 0 faces the robot's front and positive is
+     * counter-clockwise.
+     */
+    public double getTurretDegreesRelRobot() {
+        return 360.0 * turret.getCurrentPosition() / turretTicksPerRotation;
+    }
+
+    /**
+     * Set the turret power for one step of turning the turret to face a point on the field.
+     * <p>
+     * Like {@link #moveTowardsRelField}, this does not wait; call it every loop. Does nothing if
+     * the robot has no turret.
+     * <p>
+     * The turret can only turn 180 degrees each way from facing forward, so the error is taken
+     * without wrapping around: a turret at 170 aiming at -170 turns the long way through 0
+     * rather than into its hard stop.
+     *
+     * @param targetPoseRelField the point to face, in field coordinates; only its X and Y are
+     *                           used, its heading is ignored.
+     */
+    public void aimTurretAtRelField(Pose2D targetPoseRelField) {
+        // Step 1. Get the field heading from the robot to the target point.
+        // pose2DDelta gives the X and Y from the robot to the target; atan2 turns them into a heading.
+        Pose2D currentPoseRelField = pinpoint.getPosition();
+        Pose2D poseDeltaRelField = pose2DDelta(targetPoseRelField, currentPoseRelField);
+        double targetHeadingRelField = Math.toDegrees(Math.atan2(
+                poseDeltaRelField.getY(DistanceUnit.INCH),
+                poseDeltaRelField.getX(DistanceUnit.INCH)));
+
+        // Step 2. Turn that into a turret angle relative to the robot, -180 to 180.
+        double targetTurretDegrees = angleDiffDegrees(targetHeadingRelField, currentPoseRelField.getHeading(AngleUnit.DEGREES));
+
+        // Step 3. Power the turret toward it, slowing down within 30 degrees.
+        double turretError = getError(targetTurretDegrees - getTurretDegreesRelRobot(), 1.0/30, 1, 0);
+        turret.setPower(turretError);
     }
 
     /**
@@ -231,7 +287,6 @@ public class MechanumBot {
      */
     public double getError(double value, double errorScaler, double maxThreshold, double minThreshold) {
         // Step 1. Scale the input value by the errorScaler.
-        // TODO implement step 1
         double result = value * errorScaler;
 
         // Step 2. Clip the result to the max.

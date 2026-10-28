@@ -200,6 +200,12 @@ drives. They carry `frontLeft` / `frontRight` / `backLeft` / `backRight`, an `im
 Pinpoint odometry computer, `sensor_otos`, `octoquad`, a `color_sensor` and four
 distance sensors.
 
+Biobuzz V1 (the default) is the team robot: the mecanum drive, `imu` and Pinpoint, with
+`intake`, `transfer` and `launcher` motors in place of the colour and distance sensors. It
+starts against the audience wall. Biobuzz V2 adds a `turret` motor (312 RPM through 5:1,
+2688 ticks per turret revolution) carrying the launcher. The turret turns one full revolution,
+180° each way from forward, and positive power turns it counter-clockwise.
+
 Claw Bot is a two-wheel drive (`leftDrive` / `rightDrive`) with an `imu`, an `arm` motor,
 a `claw` servo and a Pinpoint odometry computer (`pinpoint`). It has no strafe, so the
 Pinpoint's Y pod only moves when the robot turns or is pushed.
