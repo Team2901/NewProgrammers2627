@@ -7,15 +7,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.hardware.MechanumBot;
+import org.firstinspires.ftc.teamcode.utilities.Constants;
 
 @TeleOp(group = "MechanumBot")
 public class MechanumBotTeleop extends OpMode {
 
     MechanumBot robot = new MechanumBot();
     Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 90);
-
-    Pose2D redAudienceGoalPose = new Pose2D(DistanceUnit.INCH, -12, -12, AngleUnit.DEGREES, 90);
-    Pose2D redFarGoalPose = new Pose2D(DistanceUnit.INCH, -12, 12, AngleUnit.DEGREES, -90);
 
     @Override
     public void init() {
@@ -35,8 +33,7 @@ public class MechanumBotTeleop extends OpMode {
         double rightStickMag = Math.hypot(-gamepad1.right_stick_y, gamepad1.right_stick_x);
         double rightStickAngle = Math.toDegrees(Math.atan2(-gamepad1.right_stick_y, gamepad1.right_stick_x));
 
-        Pose2D goalPose = currentPoseRelField.getY(DistanceUnit.INCH) > 0 ? redFarGoalPose : redAudienceGoalPose;
-        robot.aimTurretAtRelField(goalPose);
+        robot.aimTurretAtRelField(Constants.getGoalPose(robot.alliance, currentPoseRelField));
 
         if (gamepad1.a) {
             robot.moveTowardsRelField(targetPose);
@@ -55,6 +52,7 @@ public class MechanumBotTeleop extends OpMode {
             robot.setPinpointPositon(0,0, 90);
         }
 
+        telemetry.addData("alliance", robot.alliance);
         robot.poseTelemetry("currentPoseRelField", currentPoseRelField);
         robot.poseTelemetry("poseDelta", robot.pose2DDelta(targetPose, currentPoseRelField));
     }

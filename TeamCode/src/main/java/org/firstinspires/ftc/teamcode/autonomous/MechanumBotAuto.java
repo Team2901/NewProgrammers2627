@@ -3,31 +3,15 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.hardware.MechanumBot;
+import org.firstinspires.ftc.teamcode.utilities.Constants;
 
 @Autonomous(group = "MechanumBot")
 public class MechanumBotAuto extends OpMode {
 
     MechanumBot robot = new MechanumBot();
-    Pose2D redAudienceStartingPose = new Pose2D(DistanceUnit.INCH, -12, -72 + 9, AngleUnit.DEGREES, 90);
-
-    Pose2D redFarStartingPose = new Pose2D(DistanceUnit.INCH,
-            redAudienceStartingPose.getX(DistanceUnit.INCH),
-            -redAudienceStartingPose.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
-            -redAudienceStartingPose.getHeading(AngleUnit.DEGREES));
-
-    Pose2D blueAudienceStartingPose = new Pose2D(DistanceUnit.INCH,
-            -redAudienceStartingPose.getX(DistanceUnit.INCH),
-            redAudienceStartingPose.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
-            redAudienceStartingPose.getHeading(AngleUnit.DEGREES));
-
-    Pose2D blueFarStartingPose = new Pose2D(DistanceUnit.INCH,
-            blueAudienceStartingPose.getX(DistanceUnit.INCH),
-            -blueAudienceStartingPose.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
-            -blueAudienceStartingPose.getHeading(AngleUnit.DEGREES));
+    Constants.StartingLocation startingLocation = Constants.StartingLocation.AUDIENCE;
 
     @Override
     public void init() {
@@ -38,18 +22,27 @@ public class MechanumBotAuto extends OpMode {
     public void init_loop() {
         super.init_loop();
 
-        Pose2D startingPose = robot.pinpoint.getPosition();
-
+        Constants.Alliance alliance = robot.alliance;
         if (gamepad1.x) {
-            startingPose = redAudienceStartingPose;
+            alliance = Constants.Alliance.RED;
+            startingLocation = Constants.StartingLocation.AUDIENCE;
         } else if (gamepad1.a) {
-            startingPose = blueAudienceStartingPose;
+            alliance = Constants.Alliance.BLUE;
+            startingLocation = Constants.StartingLocation.AUDIENCE;
         } else if (gamepad1.y) {
-            startingPose = redFarStartingPose;
+            alliance = Constants.Alliance.RED;
+            startingLocation = Constants.StartingLocation.FAR;
         } else if (gamepad1.b) {
-            startingPose = blueFarStartingPose;
+            alliance = Constants.Alliance.BLUE;
+            startingLocation = Constants.StartingLocation.FAR;
         }
-        robot.setPinpointPositon(startingPose);
+
+        if (startingLocation != null) {
+            robot.setPinpointPositon(Constants.getStartingPose(alliance, startingLocation));
+        }
+
+        // Record the alliance so the teleop that follows knows which goals to aim at.
+        robot.setAlliance(alliance);
 
         telemetry.addLine("Select Alliance:");
         telemetry.addLine("X = RED AUDIENCE");
@@ -57,6 +50,8 @@ public class MechanumBotAuto extends OpMode {
         telemetry.addLine("Y = RED FAR");
         telemetry.addLine("B = BLUE FAR");
 
+        telemetry.addData("alliance", robot.alliance);
+        telemetry.addData("startingLocation", startingLocation);
         robot.poseTelemetry("currentPoseRelField", robot.pinpoint.getPosition());
 
         telemetry.update();

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,10 +14,15 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.utilities.Constants;
 
 public class MechanumBot {
 
     public Telemetry telemetry;
+
+
+    // The alliance we are playing for; null until an OpMode sets it.
+    public Constants.Alliance alliance = null;
 
     public DcMotorEx frontLeft;
     public DcMotorEx backLeft;
@@ -68,6 +74,24 @@ public class MechanumBot {
         initImu(hardwareMap);
 
         initTurret(hardwareMap);
+
+        initAlliance();
+    }
+
+    public void initAlliance() {
+        // The auto records the alliance it ran as; default to RED if no auto has picked one.
+        alliance = (Constants.Alliance) OpMode.blackboard.get("alliance");
+        if (alliance == null) {
+            telemetry.addData("alliance", "not found, defaulting to RED");
+            alliance = Constants.Alliance.RED;
+        } else {
+            telemetry.addData("alliance", alliance);
+        }
+    }
+
+    public void setAlliance(Constants.Alliance alliance) {
+        this.alliance = alliance;
+        OpMode.blackboard.put("alliance", alliance);
     }
 
     private void initTurret(HardwareMap hardwareMap) {
@@ -92,9 +116,8 @@ public class MechanumBot {
         parameters = new IMU.Parameters(orientationOnRobot);
         boolean success = imu.initialize(parameters);
 
-        if (success && (telemetry != null)) {
-            telemetry.addLine("IMU initialized");
-            telemetry.update();
+        if (!success && telemetry != null) {
+            telemetry.addData("IMU initialized", false);
         }
     }
 
@@ -129,6 +152,8 @@ public class MechanumBot {
          */
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
                 GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
+        poseTelemetry("pinpoint position", pinpoint.getPosition());
     }
 
     public void setPinpointPositon(int xInches, double yInches, double headingDegrees) {
