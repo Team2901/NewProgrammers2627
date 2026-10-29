@@ -63,6 +63,13 @@ public class DrawBot {
     private static final RevHubOrientationOnRobot.UsbFacingDirection imuUsbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
     private static final RevHubOrientationOnRobot.LogoFacingDirection imuLogoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
 
+    /**
+     * Set up the robot: find and configure the turn and drive motors, the potentiometer and the
+     * pen servo (starting with the pen up), then initialize the IMU. Call once from the OpMode's init.
+     *
+     * @param hardwareMap the OpMode's hardware map, used to find each device by its configured name.
+     * @param telemetry   the OpMode's telemetry, kept for reporting status.
+     */
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
@@ -94,6 +101,11 @@ public class DrawBot {
         initImu(hardwareMap);
     }
 
+    /**
+     * Find the IMU named "imu" and initialize it for how the Control Hub is mounted on the robot.
+     *
+     * @param hardwareMap the OpMode's hardware map.
+     */
     private void initImu(HardwareMap hardwareMap) {
 
         imu = hardwareMap.get(IMU.class, "imu");

@@ -3,14 +3,14 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.hardware.MechanumBot;
+import org.firstinspires.ftc.teamcode.hardware.BioBuzzV2Robot;
 import org.firstinspires.ftc.teamcode.utilities.Constants;
+import org.firstinspires.ftc.teamcode.utilities.PoseUtilities;
 
-@Autonomous(group = "MechanumBot")
-public class MechanumBotAuto extends OpMode {
+@Autonomous(group = "BioBuzzV2")
+public class BioBuzzV2Auto extends OpMode {
 
-    MechanumBot robot = new MechanumBot();
+    BioBuzzV2Robot robot = new BioBuzzV2Robot();
     Constants.StartingLocation startingLocation = Constants.StartingLocation.AUDIENCE;
 
     @Override
@@ -22,7 +22,7 @@ public class MechanumBotAuto extends OpMode {
     public void init_loop() {
         super.init_loop();
 
-        Constants.Alliance alliance = robot.alliance;
+        Constants.Alliance alliance = robot.getAlliance();
         if (gamepad1.x) {
             alliance = Constants.Alliance.RED;
             startingLocation = Constants.StartingLocation.AUDIENCE;
@@ -50,9 +50,9 @@ public class MechanumBotAuto extends OpMode {
         telemetry.addLine("Y = RED FAR");
         telemetry.addLine("B = BLUE FAR");
 
-        telemetry.addData("alliance", robot.alliance);
+        telemetry.addData("alliance", robot.getAlliance());
         telemetry.addData("startingLocation", startingLocation);
-        robot.poseTelemetry("currentPoseRelField", robot.pinpoint.getPosition());
+        telemetry.addData("currentPoseRelField", PoseUtilities.poseToString(robot.getPinpointPositon()));
 
         telemetry.update();
     }
@@ -60,6 +60,6 @@ public class MechanumBotAuto extends OpMode {
     @Override
     public void loop() {
         robot.update();
-        robot.poseTelemetry("currentPoseRelField", robot.pinpoint.getPosition());
+        telemetry.addData("currentPoseRelField", PoseUtilities.poseToString(robot.getPinpointPositon()));
     }
 }

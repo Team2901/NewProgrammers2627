@@ -34,6 +34,13 @@ public class ClawBot {
     private static final RevHubOrientationOnRobot.UsbFacingDirection imuUsbFacingDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
     private static final RevHubOrientationOnRobot.LogoFacingDirection imuLogoDirection = RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
 
+    /**
+     * Set up the robot: find and configure the two drive motors, then initialize the Pinpoint and IMU.
+     * Call once from the OpMode's init.
+     *
+     * @param hardwareMap the OpMode's hardware map, used to find each device by its configured name.
+     * @param telemetry   the OpMode's telemetry, kept for reporting status.
+     */
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
@@ -54,6 +61,11 @@ public class ClawBot {
         initImu(hardwareMap);
     }
 
+    /**
+     * Find the IMU named "imu" and initialize it for how the Control Hub is mounted on the robot.
+     *
+     * @param hardwareMap the OpMode's hardware map.
+     */
     private void initImu(HardwareMap hardwareMap) {
 
         imu = hardwareMap.get(IMU.class, "imu");
@@ -69,6 +81,12 @@ public class ClawBot {
         }
     }
 
+    /**
+     * Find the Pinpoint odometry computer named "pinpoint", configure its pod offsets, pod type
+     * and encoder directions, recalibrate it, and set the robot's position to 0, 0, 0.
+     *
+     * @param hardwareMap the OpMode's hardware map.
+     */
     private void initPinpoint(HardwareMap hardwareMap) {
 
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
