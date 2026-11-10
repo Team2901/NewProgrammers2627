@@ -21,7 +21,7 @@ public class GiancarloTeleop extends OpMode {
     @Override
     public void loop() {
         robot.pinpoint.update();
-        robot.leftMotor.
+
         double moveMultiplier = 0.5;
         double forward = -gamepad1.right_stick_y;
         double right = gamepad1.right_stick_x;

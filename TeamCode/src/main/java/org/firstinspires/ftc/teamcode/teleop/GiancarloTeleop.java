@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.hardware.ClawBot;
 public class GiancarloTeleop extends OpMode {
     int buttonPresses = 0;
     ClawBot robot = new ClawBot();
-    double TargetXInches = 48;
+    double targetXInches = 48;
     @Override
     public void init() {
         robot.init(hardwareMap,telemetry);
