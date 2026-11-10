@@ -21,20 +21,22 @@ public class Constants {
         FAR
     }
 
-    public static final Pose2D RED_AUDIENCE_GOAL_POSE = new Pose2D(DistanceUnit.INCH, -12, -12, AngleUnit.DEGREES, 90);
-    public static final Pose2D RED_FAR_GOAL_POSE = new Pose2D(DistanceUnit.INCH, -12, 12, AngleUnit.DEGREES, -90);
-    public static final Pose2D BLUE_AUDIENCE_GOAL_POSE = new Pose2D(DistanceUnit.INCH, 12, -12, AngleUnit.DEGREES, 90);
-    public static final Pose2D BLUE_FAR_GOAL_POSE = new Pose2D(DistanceUnit.INCH, 12, 12, AngleUnit.DEGREES, -90);
+    // Field coordinates: origin at the field centre, +X toward the audience, +Y toward the BLUE
+    // side, heading 0 facing +X and counter-clockwise positive.
+    public static final Pose2D RED_AUDIENCE_GOAL_POSE = new Pose2D(DistanceUnit.INCH, 12, -12, AngleUnit.DEGREES, 180);
+    public static final Pose2D RED_FAR_GOAL_POSE = new Pose2D(DistanceUnit.INCH, -12, -12, AngleUnit.DEGREES, 0);
+    public static final Pose2D BLUE_AUDIENCE_GOAL_POSE = new Pose2D(DistanceUnit.INCH, 12, 12, AngleUnit.DEGREES, 180);
+    public static final Pose2D BLUE_FAR_GOAL_POSE = new Pose2D(DistanceUnit.INCH, -12, 12, AngleUnit.DEGREES, 0);
 
     /**
      * The goal to aim at: our alliance's goal on whichever half of the field the robot is in.
      *
      * @param alliance           the alliance we are playing for.
      * @param robotPoseRelField  the robot's current pose in field coordinates.
-     * @return the far goal if the robot is in the far half (Y above 0), otherwise the audience goal.
+     * @return the far goal if the robot is in the far half (X below 0), otherwise the audience goal.
      */
     public static Pose2D getGoalPose(Alliance alliance, Pose2D robotPoseRelField) {
-        boolean inFarHalf = robotPoseRelField.getY(DistanceUnit.INCH) > 0;
+        boolean inFarHalf = robotPoseRelField.getX(DistanceUnit.INCH) < 0;
         if (alliance == Alliance.RED) {
             return inFarHalf ? RED_FAR_GOAL_POSE : RED_AUDIENCE_GOAL_POSE;
         } else {
@@ -43,22 +45,24 @@ public class Constants {
     }
 
     // Auto starting poses. The other three are mirrors of red audience, so only it needs tuning.
-    public static final Pose2D RED_AUDIENCE_STARTING_POSE = new Pose2D(DistanceUnit.INCH, -12, -72 + 9, AngleUnit.DEGREES, 90);
+    // Audience and far are mirrored across the Y axis (X flips, heading becomes 180 - heading);
+    // red and blue are mirrored across the X axis (Y flips, heading flips).
+    public static final Pose2D RED_AUDIENCE_STARTING_POSE = new Pose2D(DistanceUnit.INCH, 72 - 9, -12, AngleUnit.DEGREES, 180);
 
     public static final Pose2D RED_FAR_STARTING_POSE = new Pose2D(DistanceUnit.INCH,
+            -RED_AUDIENCE_STARTING_POSE.getX(DistanceUnit.INCH),
+            RED_AUDIENCE_STARTING_POSE.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
+            AngleUnit.normalizeDegrees(180 - RED_AUDIENCE_STARTING_POSE.getHeading(AngleUnit.DEGREES)));
+
+    public static final Pose2D BLUE_AUDIENCE_STARTING_POSE = new Pose2D(DistanceUnit.INCH,
             RED_AUDIENCE_STARTING_POSE.getX(DistanceUnit.INCH),
             -RED_AUDIENCE_STARTING_POSE.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
             -RED_AUDIENCE_STARTING_POSE.getHeading(AngleUnit.DEGREES));
 
-    public static final Pose2D BLUE_AUDIENCE_STARTING_POSE = new Pose2D(DistanceUnit.INCH,
-            -RED_AUDIENCE_STARTING_POSE.getX(DistanceUnit.INCH),
-            RED_AUDIENCE_STARTING_POSE.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
-            RED_AUDIENCE_STARTING_POSE.getHeading(AngleUnit.DEGREES));
-
     public static final Pose2D BLUE_FAR_STARTING_POSE = new Pose2D(DistanceUnit.INCH,
-            BLUE_AUDIENCE_STARTING_POSE.getX(DistanceUnit.INCH),
-            -BLUE_AUDIENCE_STARTING_POSE.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
-            -BLUE_AUDIENCE_STARTING_POSE.getHeading(AngleUnit.DEGREES));
+            -BLUE_AUDIENCE_STARTING_POSE.getX(DistanceUnit.INCH),
+            BLUE_AUDIENCE_STARTING_POSE.getY(DistanceUnit.INCH), AngleUnit.DEGREES,
+            AngleUnit.normalizeDegrees(180 - BLUE_AUDIENCE_STARTING_POSE.getHeading(AngleUnit.DEGREES)));
 
     /**
      * The pose the robot starts autonomous at.

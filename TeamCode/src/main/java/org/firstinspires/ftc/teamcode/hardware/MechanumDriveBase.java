@@ -99,7 +99,7 @@ public class MechanumDriveBase {
     /**
      * Drive the robot using powers given in the field's coordinate system (field-centric drive).
      * <p>
-     * Field positive X is always away from the audience; field positive Y is always toward
+     * Field positive X is always toward the audience; field positive Y is always toward
      * the BLUE side. The robot moves in the requested field direction no matter which way it
      * is facing: the powers are converted to the robot's coordinate system with
      * {@link #translatePowerToRelRobot} and then applied with {@link #movePowerRelRobot}.
@@ -122,7 +122,7 @@ public class MechanumDriveBase {
      * Convert a power given in the field's coordinate system into the power to apply in the
      * robot's own coordinate system, given the robot's current heading on the field.
      * <p>
-     * Field positive X is always away from the audience; field positive Y is always toward
+     * Field positive X is always toward the audience; field positive Y is always toward
      * the BLUE side.
      *
      * @param xDiffRelField               power to apply in the field relative X direction.

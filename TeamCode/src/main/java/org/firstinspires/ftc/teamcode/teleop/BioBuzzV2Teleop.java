@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.utilities.PoseUtilities;
  * Gamepad 1 controls:
  * <ul>
  *     <li>Left stick: drive in a field direction. Up drives toward field +Y (the BLUE side) and
- *     right drives toward field +X (away from the audience), whichever way the robot faces.</li>
+ *     right drives toward field +X (toward the audience), whichever way the robot faces.</li>
  *     <li>Right stick: point it the way the robot should face; the robot turns to that field
  *     heading. Let go and the robot stops turning.</li>
  *     <li>A (hold): drive automatically to {@link #targetPose}.</li>
@@ -29,8 +29,8 @@ public class BioBuzzV2Teleop extends OpMode {
 
     BioBuzzV2Robot robot = new BioBuzzV2Robot();
 
-    // Where holding A drives the robot to: the center of the field, facing field +Y.
-    Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 90);
+    // Where holding A drives the robot to: the center of the field, facing field -X (away from the audience).
+    Pose2D targetPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 180);
 
     @Override
     public void init() {
