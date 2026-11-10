@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode.testing;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.autonomous.AbstractAutonomous;
 
+@Disabled
 @Autonomous(group = "test")
 public class MotorDriveAutoTest extends AbstractAutonomous {
     ElapsedTime timer = new ElapsedTime();

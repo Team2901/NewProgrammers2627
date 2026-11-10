@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous.StateMachine;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.hardware.DecodeHardware;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+@Disabled
 @TeleOp
 public class ExampleStateMachine extends OpMode {
     public DecodeHardware robot = new DecodeHardware();
