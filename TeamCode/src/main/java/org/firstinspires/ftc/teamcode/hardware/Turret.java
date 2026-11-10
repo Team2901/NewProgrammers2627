@@ -122,45 +122,45 @@ public class Turret {
     public double chooseReachableHeading(double targetHeadingRelRobot) {
         // Step 1. Calculate the shortest turn from the turret's current heading to the target (-180 to 180).
         double currentHeadingRelRobot = getHeadingRelRobot();
-        double headingDiffRelTurret = PoseUtilities.angleDiffDegrees(targetHeadingRelRobot, currentHeadingRelRobot);
+        double targetHeadingRelTurret = PoseUtilities.angleDiffDegrees(targetHeadingRelRobot, currentHeadingRelRobot);
 
         // Step 2. From that, calculate the turn in each direction: counter-clockwise is positive,
         // clockwise is negative, and together they make one full rotation.
-        // e.g. if headingDiffRelTurret is 30, the counter-clockwise turn is 30 and the clockwise
+        // e.g. if targetHeadingRelTurret is 30, the counter-clockwise turn is 30 and the clockwise
         // turn is 30 - 360 = -330.
-        double counterClockwiseTurn;
-        double clockwiseTurn;
-        if (headingDiffRelTurret > 0) {
-            counterClockwiseTurn = headingDiffRelTurret;
-            clockwiseTurn = headingDiffRelTurret - 360;
+        double ccwTargetHeadingRelTurret;
+        double cwTargetHeadingRelTurret;
+        if (targetHeadingRelTurret > 0) {
+            ccwTargetHeadingRelTurret = targetHeadingRelTurret;
+            cwTargetHeadingRelTurret = targetHeadingRelTurret - 360;
         } else {
-            counterClockwiseTurn = headingDiffRelTurret + 360;
-            clockwiseTurn = headingDiffRelTurret;
+            ccwTargetHeadingRelTurret = targetHeadingRelTurret + 360;
+            cwTargetHeadingRelTurret = targetHeadingRelTurret;
         }
 
         // Step 3. Add each turn to the current heading to get the two candidate turret positions.
-        double counterClockwiseTarget = currentHeadingRelRobot + counterClockwiseTurn;
-        double clockwiseTarget = currentHeadingRelRobot + clockwiseTurn;
+        double ccwTargetHeadingRelRobot = ccwTargetHeadingRelTurret + currentHeadingRelRobot;
+        double cwTargetHeadingRelRobot = cwTargetHeadingRelTurret + currentHeadingRelRobot;
 
         // Step 4. Check whether each candidate is inside the turret's range
         // (see minTurretHeading and maxTurretHeading).
-        boolean canTurnCounterClockwise = counterClockwiseTarget <= maxTurretHeading;
-        boolean canTurnClockwise = clockwiseTarget >= minTurretHeading;
+        boolean canTurnCounterClockwise = ccwTargetHeadingRelRobot <= maxTurretHeading;
+        boolean canTurnClockwise = cwTargetHeadingRelRobot >= minTurretHeading;
 
         // Step 5. Return the candidate to turn to.
         // If both are in range: use the shorter turn.
         // If only one is in range: use it.
         // If neither is (the range is under one rotation): use the stop that faces nearest the heading.
         if (canTurnCounterClockwise && canTurnClockwise) {
-            if (counterClockwiseTurn <= Math.abs(clockwiseTurn)) {
-                return counterClockwiseTarget;
+            if (ccwTargetHeadingRelTurret <= Math.abs(cwTargetHeadingRelTurret)) {
+                return ccwTargetHeadingRelRobot;
             } else {
-                return clockwiseTarget;
+                return cwTargetHeadingRelRobot;
             }
         } else if (canTurnCounterClockwise) {
-            return counterClockwiseTarget;
+            return ccwTargetHeadingRelRobot;
         } else if (canTurnClockwise) {
-            return clockwiseTarget;
+            return cwTargetHeadingRelRobot;
         } else {
             double minStopMiss = Math.abs(PoseUtilities.angleDiffDegrees(targetHeadingRelRobot, minTurretHeading));
             double maxStopMiss = Math.abs(PoseUtilities.angleDiffDegrees(targetHeadingRelRobot, maxTurretHeading));
