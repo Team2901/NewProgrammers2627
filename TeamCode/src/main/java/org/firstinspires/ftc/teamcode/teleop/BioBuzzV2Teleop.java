@@ -49,7 +49,11 @@ public class BioBuzzV2Teleop extends OpMode {
         double robotHeadingRelField = currentPoseRelField.getHeading(AngleUnit.DEGREES);
 
         // Keep the turret pointed at our goal, whatever the driver is doing.
-        robot.turret.aimAtClosestGoal(robot.getAlliance(), currentPoseRelField);
+        if (gamepad2.left_stick_x != 0) {
+            robot.turret.pivotMotor.setPower(gamepad2.left_stick_x);
+        } else {
+            robot.turret.aimAtClosestGoal(robot.getAlliance(), currentPoseRelField);
+        }
 
         // Drive.
         if (gamepad1.a) {
@@ -86,5 +90,7 @@ public class BioBuzzV2Teleop extends OpMode {
         telemetry.addData("alliance", robot.getAlliance());
         telemetry.addData("currentPoseRelField", PoseUtilities.poseToString(currentPoseRelField));
         telemetry.addData("poseDelta", PoseUtilities.poseToString(PoseUtilities.pose2DDelta(targetPose, currentPoseRelField)));
+        telemetry.addData("rel robot", robot.turret.getHeadingRelRobot());
+        telemetry.addData("rel field", robot.turret.getHeadingRelField(currentPoseRelField));
     }
 }

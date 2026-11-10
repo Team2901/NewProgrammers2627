@@ -16,10 +16,26 @@ public class Turret {
 
     public Telemetry telemetry;
 
-    private static final double motorEncoderTicksPerRotation = ((((1 + (46 / 17.0))) * (1 + (46 / 11.0))) * 28); // from https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
-    public static final double turretTicksPerRotation = motorEncoderTicksPerRotation * 5.0; // 5:1 from motor to turret
+    /// Encoder ticks per motor rotation, from
+    /// https://www.gobilda.com/5203-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-24mm-length-8mm-rex-shaft-312-rpm-3-3-5v-encoder/
+    private static final double motorEncoderTicksPerRotation = (1 + 46 / 17.0) * (1 + 46 / 11.0) * 28;
+    /// Encoder ticks per turret rotation: the motor turns 5 times for each turret rotation.
+    public static final double turretTicksPerRotation = motorEncoderTicksPerRotation * 5.0;
 
-    private DcMotorEx pivotMotor;
+    /// The turret's hard stops, in degrees from facing forward, positive counter-clockwise.
+    /// min must be below max, and the turret must face forward (0) when INIT is pressed, so
+    /// min must be at most 0 and max at least 0.
+    public static final double minTurretHeading = -360.0;
+    public static final double maxTurretHeading = 360.0;
+
+    /// Where the turret's pivot is on the robot, in inches from the robot's center (the point its
+    /// pose is measured at), in robot coordinates: X is forward and Y is left.
+    /// -3.72, 0 matches the simulator's Biobuzz V2, whose turret sits 3.72 inches behind center;
+    /// measure the real robot and change these to match.
+    public static final double turretOffsetXInches = -3.72;
+    public static final double turretOffsetYInches = 0.0;
+
+    public DcMotorEx pivotMotor;
 
     /**
      * Find the turret motor named "turret" and start counting its encoder from here, so the turret
@@ -48,7 +64,141 @@ public class Turret {
      * Per-loop update for the turret. Call once every loop; currently does nothing.
      */
     public void update() {
+    }
 
+    /**
+     * Set the turret power for one step of turning the turret to face a heading on the field.
+     * <p>
+     * This does not wait for the turret to arrive. It looks at where the turret is now, sets the
+     * power once, and returns. Call it repeatedly in a loop; the caller decides when the turret
+     * is close enough. The heading stays fixed on the field, so the turret keeps facing it while
+     * the robot turns underneath.
+     *
+     * @param targetHeadingRelField the heading to face, in field coordinates, in degrees: 0 faces
+     *                              field +X and positive is counter-clockwise.
+     * @param robotPoseRelField     the robot's pose in field coordinates; only its heading is used.
+     */
+    public void turnTowardsRelField(double targetHeadingRelField, Pose2D robotPoseRelField) {
+        // Step 1. Convert the field heading into a heading relative to the robot, -180 to 180.
+        double targetHeadingRelRobot = translateHeadingToRelRobot(targetHeadingRelField, robotPoseRelField.getHeading(AngleUnit.DEGREES));
+
+        // Step 2. Pick the turret position that faces it: the shorter of turning counter-clockwise
+        // or clockwise that stays inside the hard stops.
+        double closestTargetHeadingRelRobot = chooseReachableHeading(targetHeadingRelRobot);
+
+        // Step 3. Turn the turret toward that position.
+        turnTowardsRelRobot(closestTargetHeadingRelRobot);
+    }
+
+    /**
+     * Convert a heading given in the field's coordinate system into a heading relative to the
+     * robot, given the robot's current heading on the field.
+     * <p>
+     * The opposite of {@link #getHeadingRelField}. This only converts the angle; to choose
+     * which way the turret should turn to face it, see {@link #chooseReachableHeading}.
+     *
+     * @param targetHeadingRelField the heading in field coordinates, in degrees.
+     * @param robotHeadingRelField  robot heading in the field coordinate system, in degrees.
+     * @return the heading relative to the robot, in degrees, -180 to 180: 0 faces the robot's
+     * front and positive is counter-clockwise.
+     */
+    public double translateHeadingToRelRobot(double targetHeadingRelField, double robotHeadingRelField) {
+        return PoseUtilities.angleDiffDegrees(targetHeadingRelField, robotHeadingRelField);
+    }
+
+    /**
+     * Choose the turret position that faces a heading on the robot, without passing a hard stop.
+     * <p>
+     * From where it is now, the turret can face the heading two ways: by turning counter-clockwise
+     * or by turning clockwise. Together the two turns add up to one full rotation. This picks the
+     * shorter one that stays between {@link #minTurretHeading} and {@link #maxTurretHeading}. If
+     * the range is less than a full rotation and neither fits, it picks whichever hard stop is
+     * closer to facing the heading.
+     *
+     * @param targetHeadingRelRobot the heading to face relative to the robot, in degrees.
+     * @return the turret position to turn to, in degrees, minTurretHeading to maxTurretHeading:
+     * 0 faces the robot's front and positive is counter-clockwise.
+     */
+    public double chooseReachableHeading(double targetHeadingRelRobot) {
+        // Step 1. Calculate the shortest turn from the turret's current heading to the target (-180 to 180).
+        double currentHeadingRelRobot = getHeadingRelRobot();
+        double headingDiffRelTurret = PoseUtilities.angleDiffDegrees(targetHeadingRelRobot, currentHeadingRelRobot);
+
+        // Step 2. From that, calculate the turn in each direction: counter-clockwise is positive,
+        // clockwise is negative, and together they make one full rotation.
+        // e.g. if headingDiffRelTurret is 30, the counter-clockwise turn is 30 and the clockwise
+        // turn is 30 - 360 = -330.
+        double counterClockwiseTurn;
+        double clockwiseTurn;
+        if (headingDiffRelTurret > 0) {
+            counterClockwiseTurn = headingDiffRelTurret;
+            clockwiseTurn = headingDiffRelTurret - 360;
+        } else {
+            counterClockwiseTurn = headingDiffRelTurret + 360;
+            clockwiseTurn = headingDiffRelTurret;
+        }
+
+        // Step 3. Add each turn to the current heading to get the two candidate turret positions.
+        double counterClockwiseTarget = currentHeadingRelRobot + counterClockwiseTurn;
+        double clockwiseTarget = currentHeadingRelRobot + clockwiseTurn;
+
+        // Step 4. Check whether each candidate is inside the turret's range
+        // (see minTurretHeading and maxTurretHeading).
+        boolean canTurnCounterClockwise = counterClockwiseTarget <= maxTurretHeading;
+        boolean canTurnClockwise = clockwiseTarget >= minTurretHeading;
+
+        // Step 5. Return the candidate to turn to.
+        // If both are in range: use the shorter turn.
+        // If only one is in range: use it.
+        // If neither is (the range is under one rotation): use the stop that faces nearest the heading.
+        if (canTurnCounterClockwise && canTurnClockwise) {
+            if (counterClockwiseTurn <= Math.abs(clockwiseTurn)) {
+                return counterClockwiseTarget;
+            } else {
+                return clockwiseTarget;
+            }
+        } else if (canTurnCounterClockwise) {
+            return counterClockwiseTarget;
+        } else if (canTurnClockwise) {
+            return clockwiseTarget;
+        } else {
+            double minStopMiss = Math.abs(PoseUtilities.angleDiffDegrees(targetHeadingRelRobot, minTurretHeading));
+            double maxStopMiss = Math.abs(PoseUtilities.angleDiffDegrees(targetHeadingRelRobot, maxTurretHeading));
+            if (minStopMiss <= maxStopMiss) {
+                return minTurretHeading;
+            } else {
+                return maxTurretHeading;
+            }
+        }
+    }
+
+    /**
+     * Set the turret power for one step of turning the turret to an angle on the robot.
+     * <p>
+     * This does not wait; call it every loop. The power follows the PoseUtilities.getError
+     * profile: full power far from the target, ramping down linearly once within 30 degrees.
+     * <p>
+     * The turret can only turn between {@link #minTurretHeading} and {@link #maxTurretHeading},
+     * so the error is taken without wrapping around: the turret always turns the way that stays
+     * inside its range rather than into its hard stop.
+     *
+     * @param targetHeadingRelRobot the turret angle to turn to, relative to the robot, in degrees:
+     *                              0 faces the robot's front and positive is counter-clockwise.
+     *                              Not wrapped: 270 and -90 are different turret positions.
+     *                              Clamped to minTurretHeading to maxTurretHeading.
+     */
+    public void turnTowardsRelRobot(double targetHeadingRelRobot) {
+        // Step 1. Keep the target inside the turret's range.
+        double clippedTargetHeadingRelRobot = Math.max(minTurretHeading, Math.min(maxTurretHeading, targetHeadingRelRobot));
+
+        // Step 2. Get the error without wrapping, so the turret never turns through its hard stop.
+        double errorDegrees = clippedTargetHeadingRelRobot - getHeadingRelRobot();
+
+        // Step 3. Turn the error into a power, slowing down within 30 degrees.
+        double counterClockwisePower = PoseUtilities.getError(errorDegrees, 1.0 / 30, 1, 0);
+
+        // Step 4. Turn the turret.
+        pivotMotor.setPower(Math.max(-1.0, Math.min(1.0, counterClockwisePower)));
     }
 
     /**
@@ -57,49 +207,83 @@ public class Turret {
      * @return the turret angle relative to the robot, in degrees: 0 faces the robot's front and
      * positive is counter-clockwise.
      */
-    public double getTurretDegreesRelRobot() {
+    public double getHeadingRelRobot() {
         return 360.0 * pivotMotor.getCurrentPosition() / turretTicksPerRotation;
+    }
+
+    /**
+     * Get the direction the turret is facing on the field: the robot's heading plus the turret's
+     * angle on the robot.
+     *
+     * @param robotPoseRelField the robot's pose in field coordinates; only its heading is used.
+     * @return the turret heading relative to the field, in degrees, -180 to 180, positive
+     * counter-clockwise, in the same frame as the robot's heading.
+     */
+    public double getHeadingRelField(Pose2D robotPoseRelField) {
+        return AngleUnit.normalizeDegrees(
+                robotPoseRelField.getHeading(AngleUnit.DEGREES) + getHeadingRelRobot());
+    }
+
+    /**
+     * Convert the robot's pose into the turret's pose: the same heading, moved from the robot's
+     * center to the turret's pivot (see {@link #turretOffsetXInches} and {@link #turretOffsetYInches}).
+     *
+     * @param robotPoseRelField the robot's pose in field coordinates.
+     * @return the turret pivot's pose in field coordinates, with the robot's heading.
+     */
+    public Pose2D robotPoseToTurretPose(Pose2D robotPoseRelField) {
+        // Step 1. Get the robot's heading on the field.
+        double heading = robotPoseRelField.getHeading(AngleUnit.RADIANS);
+
+        // Step 2. Rotate the offset from robot coordinates into field coordinates.
+        // The offset is measured on the robot (X forward, Y left), so which way it points on the
+        // field depends on which way the robot is facing.
+        double offsetXRelField = turretOffsetXInches * Math.cos(heading) - turretOffsetYInches * Math.sin(heading);
+        double offsetYRelField = turretOffsetXInches * Math.sin(heading) + turretOffsetYInches * Math.cos(heading);
+
+        // Step 3. Add the field offset to the robot's position to get the turret's position.
+        double turretXRelField = robotPoseRelField.getX(DistanceUnit.INCH) + offsetXRelField;
+        double turretYRelField = robotPoseRelField.getY(DistanceUnit.INCH) + offsetYRelField;
+
+        // Step 4. Build the turret's pose, keeping the robot's heading.
+        return new Pose2D(DistanceUnit.INCH, turretXRelField, turretYRelField, AngleUnit.RADIANS, heading);
     }
 
     /**
      * Set the turret power for one step of turning the turret to face a point on the field.
      * <p>
-     * This does not wait; call it every loop. Does nothing if
-     * the robot has no turret.
-     * <p>
-     * The turret can only turn 180 degrees each way from facing forward, so the error is taken
-     * without wrapping around: a turret at 170 aiming at -170 turns the long way through 0
-     * rather than into its hard stop.
+     * This does not wait; call it every loop. Does nothing if the robot has no turret.
+     * Works out the field heading from the turret's pivot (not the robot's center) to the point,
+     * then calls {@link #turnTowardsRelField}.
      *
      * @param targetPoseRelField the point to face, in field coordinates; only its X and Y are
      *                           used, its heading is ignored.
-     * @param currentPoseRelField the robot's pose in field coordinates.
+     * @param robotPoseRelField  the robot's pose in field coordinates.
      */
-    public void aimTurretAtRelField(Pose2D targetPoseRelField, Pose2D currentPoseRelField) {
-        // Step 1. Get the field heading from the robot to the target point.
-        // pose2DDelta gives the X and Y from the robot to the target; atan2 turns them into a heading.
-        Pose2D poseDeltaRelField = PoseUtilities.pose2DDelta(targetPoseRelField, currentPoseRelField);
+    public void aimTurretAtRelField(Pose2D targetPoseRelField, Pose2D robotPoseRelField) {
+        // Step 1. Get where the turret's pivot is on the field.
+        Pose2D turretPoseRelField = robotPoseToTurretPose(robotPoseRelField);
+
+        // Step 2. Get the field heading from the turret's pivot to the target point.
+        // pose2DDelta gives the X and Y from the turret to the target; atan2 turns them into a heading.
+        Pose2D poseDeltaRelField = PoseUtilities.pose2DDelta(targetPoseRelField, turretPoseRelField);
         double targetHeadingRelField = Math.toDegrees(Math.atan2(
                 poseDeltaRelField.getY(DistanceUnit.INCH),
                 poseDeltaRelField.getX(DistanceUnit.INCH)));
 
-        // Step 2. Turn that into a turret angle relative to the robot, -180 to 180.
-        double targetTurretDegrees = PoseUtilities.angleDiffDegrees(targetHeadingRelField, currentPoseRelField.getHeading(AngleUnit.DEGREES));
-
-        // Step 3. Power the turret toward it, slowing down within 30 degrees.
-        double turretError = PoseUtilities.getError(targetTurretDegrees - getTurretDegreesRelRobot(), 1.0 / 30, 1, 0);
-        pivotMotor.setPower(turretError);
+        // Step 3. Turn the turret to face that heading.
+        turnTowardsRelField(targetHeadingRelField, robotPoseRelField);
     }
 
     /**
      * Set the turret power for one step of aiming at the alliance's goal on the robot's half of
      * the field (see {@link Constants#getGoalPose}). Call it every loop, like {@link #aimTurretAtRelField}.
      *
-     * @param alliance            the alliance whose goal to aim at.
-     * @param currentPoseRelField the robot's pose in field coordinates.
+     * @param alliance          the alliance whose goal to aim at.
+     * @param robotPoseRelField the robot's pose in field coordinates.
      */
-    public void aimAtClosestGoal(Constants.Alliance alliance, Pose2D currentPoseRelField) {
-        Pose2D goalPose = Constants.getGoalPose(alliance, currentPoseRelField);
-        aimTurretAtRelField(goalPose, currentPoseRelField);
+    public void aimAtClosestGoal(Constants.Alliance alliance, Pose2D robotPoseRelField) {
+        Pose2D goalPose = Constants.getGoalPose(alliance, robotPoseRelField);
+        aimTurretAtRelField(goalPose, robotPoseRelField);
     }
 }
