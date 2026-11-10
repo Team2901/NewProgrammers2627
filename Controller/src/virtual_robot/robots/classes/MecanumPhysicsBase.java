@@ -51,6 +51,12 @@ public abstract class MecanumPhysicsBase extends VirtualBot {
     protected double gearRatioWheel = 1.0;
 
     /*
+     * Set true to mount every drive motor the other way round, so a given power turns each wheel
+     * opposite to the default. Encoder counts still follow the motor's own power, as on a real robot.
+     */
+    protected boolean reverseDriveMotors = false;
+
+    /*
      * Robot geometry, in pixels. These will be calculated in the initialize() method. They cannot be computed
      * here, because botwidth is not known until the time of construction.
      */
@@ -210,7 +216,7 @@ public abstract class MecanumPhysicsBase extends VirtualBot {
         for (int i=0; i<4; i++){
             motors[i].update(millis);
             wSpd[i] = motors[i].getVelocity(AngleUnit.RADIANS) * gearRatioWheel * wheelCircumference  / (2.0 * Math.PI);
-            boolean mtRev = MOTOR_TYPE.REVERSED;
+            boolean mtRev = MOTOR_TYPE.REVERSED ^ reverseDriveMotors;
             boolean dirRev = motors[i].getDirection() == DcMotorSimple.Direction.REVERSE;
             if (
                     i<2 && (mtRev && dirRev || !mtRev && !dirRev) || i>=2 && (mtRev && !dirRev || !mtRev && dirRev)
@@ -393,6 +399,22 @@ public abstract class MecanumPhysicsBase extends VirtualBot {
     @Override
     public synchronized void positionWithMouseClick(MouseEvent arg) {
         super.positionWithMouseClick(arg);
+        odo.update(
+                new Pose2D(DistanceUnit.METER, x/VirtualField.PIXELS_PER_METER, y/VirtualField.PIXELS_PER_METER, AngleUnit.RADIANS, headingRadians),
+                new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0), new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0)
+        );
+        odo.resetToFieldFrame();
+        sparkFunOTOSInternal.update();
+        goBildaPinpointDriverInternal.internalUpdate(false, false);
+        goBildaPinpointDriverInternal.resetEncoders();
+    }
+
+    /**
+     * Switch the robot off and on where it stands: the odometry restarts at (0, 0, heading 0)
+     * here, with its pod encoder counts at zero.
+     */
+    @Override
+    protected synchronized void powerCycleOdometry() {
         odo.update(
                 new Pose2D(DistanceUnit.METER, x/VirtualField.PIXELS_PER_METER, y/VirtualField.PIXELS_PER_METER, AngleUnit.RADIANS, headingRadians),
                 new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0), new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0)
