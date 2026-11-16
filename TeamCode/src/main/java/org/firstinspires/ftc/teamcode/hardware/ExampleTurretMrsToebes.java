@@ -7,14 +7,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SensorGoBildaPinpoint;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.utilities.PoseUtilities;
 
-public class ExampleTurretMsToebes {
+public class ExampleTurretMrsToebes {
 
     public Telemetry telemetry;
 
@@ -66,7 +65,7 @@ public class ExampleTurretMsToebes {
      * @param hardwareMap the OpMode's hardware map.
      * @param telemetry   the OpMode's telemetry, kept for reporting status.
      */
-    public ExampleTurretMsToebes(HardwareMap hardwareMap, Telemetry telemetry, GoBildaPinpointDriver pinpoint) {
+    public ExampleTurretMrsToebes(HardwareMap hardwareMap, Telemetry telemetry, GoBildaPinpointDriver pinpoint) {
         this.telemetry = telemetry;
         this.pinpoint = pinpoint;
 
