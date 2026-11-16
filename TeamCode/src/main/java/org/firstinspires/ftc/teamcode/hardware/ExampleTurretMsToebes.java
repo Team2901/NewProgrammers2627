@@ -1,14 +1,18 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorGoBildaPinpoint;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.utilities.PoseUtilities;
 
 public class ExampleTurretMsToebes {
 
@@ -27,6 +31,9 @@ public class ExampleTurretMsToebes {
 
     private final static double turretGearRatio = 5.0;
 
+    private final static double maxTurretPower = 1.0;
+    private final static double minTurretPower0 = 0.0;
+
     /// Encoder ticks per turret rotation: the motor turns 5 times for each turret rotation.
     public static final double TICKS_PER_MOTOR_REV = 537.7;
     public static final double turretTicksPerRotation = TICKS_PER_MOTOR_REV * turretGearRatio;
@@ -37,6 +44,8 @@ public class ExampleTurretMsToebes {
     public static final double minTurretHeading = -360.0;
     public static final double maxTurretHeading = 360.0;
 
+    public static final double rampUpDownDegrees = 30.0;
+
     /// Where the turret's pivot is on the robot, in inches from the robot's center (the point its
     /// pose is measured at), in robot coordinates: X is forward and Y is left.
     /// -3.72, 0 matches the simulator's Biobuzz V2, whose turret sits 3.72 inches behind center;
@@ -45,6 +54,7 @@ public class ExampleTurretMsToebes {
     public static final double turretOffsetYInches = 0.0;
 
     public DcMotorEx turretMotor;
+    public GoBildaPinpointDriver pinpoint;
 
     // The target location the turret should stay aimed at.
     Pose2D targetPoseRelField = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
@@ -56,8 +66,9 @@ public class ExampleTurretMsToebes {
      * @param hardwareMap the OpMode's hardware map.
      * @param telemetry   the OpMode's telemetry, kept for reporting status.
      */
-    public ExampleTurretMsToebes(HardwareMap hardwareMap, Telemetry telemetry) {
+    public ExampleTurretMsToebes(HardwareMap hardwareMap, Telemetry telemetry, GoBildaPinpointDriver pinpoint) {
         this.telemetry = telemetry;
+        this.pinpoint = pinpoint;
 
         try {
             turretMotor = hardwareMap.get(DcMotorEx.class, "turret");
@@ -98,6 +109,8 @@ public class ExampleTurretMsToebes {
      */
     public void turnTowardsRelField(double targetHeadingRelField, Pose2D robotPoseRelField) {
         // Step 1. Convert the field heading into a heading relative to the robot, -180 to 180.
+        //    turretHeadingRelField = robotHeadingRelField + TurretHeadingRelRobot
+        //    turretHeadingRelField - robotHeadingRelField = turretHeadingRelRobot
         double targetHeadingRelRobot = AngleUnit.normalizeDegrees(targetHeadingRelField - robotPoseRelField.getHeading(AngleUnit.DEGREES));
 
         // Step 2. Pick the turret position that faces it: the shorter of turning counter-clockwise
@@ -192,17 +205,17 @@ public class ExampleTurretMsToebes {
     public void turnTowardsRelRobot(double targetHeadingRelRobot) {
         // Step 1. Keep the target inside the turret's range.
         // TODO implement step C-1
-        double clippedTargetHeadingRelRobot = targetHeadingRelRobot;
+        double clippedTargetHeadingRelRobot = Range.clip(targetHeadingRelRobot,minTurretHeading,maxTurretHeading);
 
         // Step 2. Get the error without wrapping, so the turret never turns through its hard stop.
         double errorDegrees = clippedTargetHeadingRelRobot - getHeadingRelRobot();
 
         // Step 3. Turn the error into a power, slowing down within 30 degrees.
         // TODO implement step C-2
-        double counterClockwisePower = 1;
+        double counterClockwisePower = PoseUtilities.getError(errorDegrees, maxTurretPower/rampUpDownDegrees, maxTurretPower, minTurretPower0);
 
         // Step 4. Turn the turret.
-        // TODO implement step C-3
+        turretMotor.setPower(counterClockwisePower);
     }
 
     /**
@@ -224,8 +237,8 @@ public class ExampleTurretMsToebes {
      * counter-clockwise, in the same frame as the robot's heading.
      */
     public double getHeadingRelField(Pose2D robotPoseRelField) {
-        // TODO implement step B
-        return 0;
+        // The Field heading is equal to the robot's heading plus the turret's heading relative to the robot.
+        return AngleUnit.normalizeDegrees(robotPoseRelField.getHeading(AngleUnit.DEGREES) + getHeadingRelRobot());
     }
 
     /**
@@ -237,24 +250,39 @@ public class ExampleTurretMsToebes {
      */
     public Pose2D robotPoseToTurretPose(Pose2D robotPoseRelField) {
         // Step 1. Get the robot's heading on the field.
-        // TODO implement step G-1
-        double heading = 0;
+        double fieldHeading = this.pinpoint.getHeading(AngleUnit.DEGREES);
 
-        // Step 2. Rotate the offset from robot coordinates into field coordinates.
+        // Step 2. Rotate the turret's offset on the robot from robot coordinates into field coordinates.
         // The offset is measured on the robot (X forward, Y left), so which way it points on the
         // field depends on which way the robot is facing.
         // TODO implement step G-2
-        double offsetXRelField = 0;
-        double offsetYRelField = 0;
+        //
+        // formula to rotate a point around the origin in 2D coordinate system (ie a plane)
+        //   P1 (x,y) is the original point, thera is the angle to rotate in CCW direction
+        //   p2x = p1x * cos(theta) - p1y * sin(theta)
+        //   p2y = p1x * sin(theta) - p1y * cos(theta)
+        // formula to rotate a point around an arbitrary center point in 2D coordinate system (ie a plane)
+        //   translate to origin, rotate, translate back
+        //   p2x = (p1x -pcx) * cos(theta) - (p1y-pcy) * sin(theta) + pcx
+        //   p2y = (p1x -pcx) * sin(theta) - (p1y-pcy) * cos(theta) + pcy
+        //
+        // In this case we are rotating around the origin of the robot (0,0)
+        //
+        double xDiffRelRobot = turretOffsetXInches;
+        double yDiffRelRobot = turretOffsetYInches;
+
+        double offsetXRelField = xDiffRelRobot * Math.cos(fieldHeading) - yDiffRelRobot * Math.sin(fieldHeading);
+        double offsetYRelField = xDiffRelRobot * Math.sin(fieldHeading) - yDiffRelRobot * Math.cos(fieldHeading);
 
         // Step 3. Add the field offset to the robot's position to get the turret's position.
         // TODO implement step G-3
-        double turretXRelField = 0;
-        double turretYRelField = 0;
+        double turretXRelField = robotPoseRelField.getX(DistanceUnit.INCH) + offsetXRelField ;
+        double turretYRelField = robotPoseRelField.getY(DistanceUnit.INCH) + offsetYRelField ;
 
         // Step 4. Build the turret's pose, keeping the robot's heading.
         // TODO implement step G-4
-        return robotPoseRelField;
+        return new Pose2D(DistanceUnit.INCH, turretXRelField, turretYRelField,
+                AngleUnit.DEGREES, robotPoseRelField.getHeading(AngleUnit.DEGREES));
     }
 
     /**
