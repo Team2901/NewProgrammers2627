@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.configuration.MotorType;
 import javafx.scene.image.Image;
 import virtual_robot.controller.Game;
 import virtual_robot.controller.VirtualBot;
+import virtual_robot.controller.VirtualRobotController;
 import virtual_robot.robots.classes.BioBuzzV1;
 import virtual_robot.games.NoGame;
 
@@ -11,9 +12,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Class for configuring the field (width and image) and the game.
@@ -46,6 +53,9 @@ public class Config {
      */
     public static final boolean HOLD_CONTROLS_BY_DEFAULT = false;
 
+    public static VirtualRobotController.GamePadSource GAMEPAD1_SOURCE_BY_DEFAULT = VirtualRobotController.GamePadSource.VIRTUAL ;
+    public static VirtualRobotController.GamePadSource GAMEPAD2_SOURCE_BY_DEFAULT = VirtualRobotController.GamePadSource.HIDDEN ;
+
     /**
      * Define the game.  This must match the forGame attribute of the GameElementConfig annotation
      * on the VirtualGameElement implementations.
@@ -67,7 +77,7 @@ public class Config {
     /**
      *  Default Robot Configuration
      */
-    public static final Class<? extends VirtualBot> DEFAULT_BOT = BioBuzzV1.class;
+    public static Class<? extends VirtualBot> DEFAULT_BOT = BioBuzzV1.class;
 
     /**
      * Which of the PRESET_POSES below every robot configuration starts at when it is loaded.
@@ -107,5 +117,45 @@ public class Config {
 
     private static Pose2D pose(double xInches, double yInches, double headingDegrees) {
         return new Pose2D(DistanceUnit.INCH, xInches, yInches, AngleUnit.DEGREES, headingDegrees);
+    }
+
+
+    public static void loadConfig() {
+        String classname = "";
+        try{
+            Properties properties = new Properties();
+            properties.load(Files.newInputStream(Paths.get("src/virtual_robot/assets/config.properties")));
+
+            classname = properties.getProperty("DEFAULT_BOT");
+            if (!classname.isEmpty() ) {
+                try{
+                    DEFAULT_BOT = (Class<? extends VirtualBot>)Class.forName("virtual_robot.robots.classes."+ classname);;
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException("Config.properties DEFAULT_BOT property value is \"" + classname
+                        + "\", which is not one of the virtual_robot.robots.classes classes. ");
+            }
+            }
+        } catch (IOException ignored) {
+        }
+
+    }
+
+    public static void saveConfig()  {
+        try {
+            Properties properties = new Properties();
+            properties.load(Files.newInputStream(Paths.get("src/virtual_robot/assets/config.properties")));
+
+            String className =DEFAULT_BOT.getName().replace("virtual_robot.robots.classes.","");
+            properties.setProperty("DEFAULT_BOT", className);
+
+            FileOutputStream out = new FileOutputStream("src/virtual_robot/assets/config.properties");
+            properties.store(out, null);
+        } catch (IOException ignored)  {
+
+        }
+    }
+
+    public static synchronized void setDefaultBot(VirtualBot bot) {
+          DEFAULT_BOT = bot.getClass();
     }
 }

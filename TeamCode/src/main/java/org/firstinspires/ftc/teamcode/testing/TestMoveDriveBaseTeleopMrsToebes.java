@@ -60,7 +60,9 @@ public class TestMoveDriveBaseTeleopMrsToebes extends OpMode {
         telemetry.addData("Right stick Y", gamepad2.right_stick_y);
         telemetry.addLine("------------------");
 
-        turret.aimTurretAtRelField(turretTargetFieldRel, currentPose);
+        turret.turnTowardsRelField(joystick2Angle, currentPose);
+        //turret.aimTurretAtRelField(turretTargetFieldRel, currentPose);
+
         telemetry.addData("Turret Power", turret.turretMotor.getPower());
         telemetry.addData("current turret heading", "%.2f", turret.getHeadingRelRobot());
         telemetry.addData("current turret heading", "%.2f", turret.getHeadingRelField(currentPose));

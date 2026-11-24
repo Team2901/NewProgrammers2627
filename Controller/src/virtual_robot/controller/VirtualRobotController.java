@@ -105,8 +105,8 @@ public class VirtualRobotController {
      * What drives each virtual gamepad. Written on the FX thread, read by the gamepad polling
      * thread.
      */
-    private volatile GamePadSource gamePad1Source = GamePadSource.VIRTUAL;
-    private volatile GamePadSource gamePad2Source = GamePadSource.HIDDEN;
+    private volatile GamePadSource gamePad1Source = Config.GAMEPAD1_SOURCE_BY_DEFAULT;
+    private volatile GamePadSource gamePad2Source = Config.GAMEPAD2_SOURCE_BY_DEFAULT;
     ScheduledExecutorService gamePadExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     VirtualGamePadController virtualGamePadController = null;
@@ -379,7 +379,6 @@ public class VirtualRobotController {
         // Reflections hands back a HashSet, whose order changes from run to run.
         validConfigClasses.sort(CONFIG_ORDER);
         cbxConfig.setItems(validConfigClasses);
-//        cbxConfig.setValue(MecanumBot.class);
         cbxConfig.setValue(Config.DEFAULT_BOT);
 
         cbxConfig.setCellFactory(new Callback<ListView<Class<?>>, ListCell<Class<?>>>() {
@@ -560,6 +559,7 @@ public class VirtualRobotController {
         CommonOdometry.internalReset();
         bot = getVirtualBotInstance(cbxConfig.getValue());
         if (bot == null) System.out.println("Unable to get VirtualBot Object");
+        else Config.setDefaultBot(bot);
         hardwareMap = bot.getHardwareMap();
         // Every configuration starts at the same pose, placed as a drag would place it.
         moveBotTo(Config.STARTING_POSE);

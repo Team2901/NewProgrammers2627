@@ -1,5 +1,11 @@
 package virtual_robot.controller;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import javax.naming.Context;
+
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +16,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import virtual_robot.config.Config;
 
 /**
  * For internal use only. Main class for the JavaFX application.
@@ -17,10 +24,12 @@ import javafx.stage.WindowEvent;
 public class VirtualRobotApplication extends Application {
 
     private static VirtualRobotController controllerHandle;
+    private static Context context;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("virtual_robot.fxml"));
+        Config.loadConfig();
         BorderPane root = (BorderPane)loader.load();
         controllerHandle = loader.getController();
         primaryStage.setTitle("Virtual Robot");
@@ -75,6 +84,7 @@ public class VirtualRobotApplication extends Application {
 
     @Override
     public void stop() {
+        Config.saveConfig();
         if (controllerHandle.executorService != null && !controllerHandle.executorService.isShutdown()) {
             controllerHandle.executorService.shutdownNow();
         }
