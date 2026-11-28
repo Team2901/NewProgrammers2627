@@ -2,6 +2,7 @@ package virtual_robot.config;
 
 import com.qualcomm.robotcore.hardware.configuration.MotorType;
 import javafx.scene.image.Image;
+import javafx.stage.Stage;
 import virtual_robot.controller.Game;
 import virtual_robot.controller.VirtualBot;
 import virtual_robot.controller.VirtualRobotController;
@@ -12,20 +13,30 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import java.io.IOException;
-import java.util.Properties;
+import java.util.Optional;
+import java.util.prefs.Preferences;
 
 /**
  * Class for configuring the field (width and image) and the game.
  */
 public class Config {
+    /** User Preference Names
+     *
+     */
+    private static final String HEIGHT = "Height";
+    private static final String WIDTH = "Width";
+    private static final String Y = "Y";
+    private static final String X = "X";
+    private static final String ROBOT_TYPE = "RobotType";
+
+    // preferences are stored in windows registry at HKEY_USERS\Software\JavaSoft\Prefs\virtual_robot\controller
+    // and can be edited/deleted using regex
+    private final static Preferences prefs =  Preferences.userNodeForPackage(Config.class);
+
     /**
      * FRACTION OF TOTAL FIELD TO CONSTRAIN ROBOT MOTION
      */
@@ -119,43 +130,41 @@ public class Config {
         return new Pose2D(DistanceUnit.INCH, xInches, yInches, AngleUnit.DEGREES, headingDegrees);
     }
 
+    public static void setWindowSize(Stage stage, double defaultX, double defaultY, double defaultW, double defaultH  ) {
 
-    public static void loadConfig() {
-        String classname = "";
-        try{
-            Properties properties = new Properties();
-            properties.load(Files.newInputStream(Paths.get("src/virtual_robot/assets/config.properties")));
+        // Get the default X,Y,W,H from saved preferences and use them to size the window
+        Optional.ofNullable(prefs.getDouble(X, defaultX)).filter(x->x>=0).ifPresent(stage::setX);
+        Optional.ofNullable(prefs.getDouble(Y, defaultY)).filter(y->y>=0).ifPresent(stage::setY);
+        Optional.ofNullable(prefs.getDouble(WIDTH, defaultW)).filter(width->width>=0).ifPresent(stage::setWidth);
+        Optional.ofNullable(prefs.getDouble(HEIGHT, defaultH)).filter(height->height>=0).ifPresent(stage::setHeight);
 
-            classname = properties.getProperty("DEFAULT_BOT");
-            if (!classname.isEmpty() ) {
-                try{
-                    DEFAULT_BOT = (Class<? extends VirtualBot>)Class.forName("virtual_robot.robots.classes."+ classname);;
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalStateException("Config.properties DEFAULT_BOT property value is \"" + classname
-                        + "\", which is not one of the virtual_robot.robots.classes classes. ");
-            }
-            }
-        } catch (IOException ignored) {
-        }
+        stage.setOnCloseRequest(
+                e->{
 
+                    if(stage.isFullScreen()) {
+                        return;
+                    }
+
+                    prefs.putDouble(X, stage.getX());
+                    prefs.putDouble(Y, stage.getY());
+                    prefs.putDouble(WIDTH, stage.getWidth());
+                    prefs.putDouble(HEIGHT, stage.getHeight());
+                });
     }
 
-    public static void saveConfig()  {
+    public static void setRobotType(VirtualBot bot) {
+        prefs.put(ROBOT_TYPE, bot.getClass().getName());
+    }
+    public static Class<VirtualBot> getRobotType() {
+        Class<?> clazz =Config.DEFAULT_BOT;
         try {
-            Properties properties = new Properties();
-            properties.load(Files.newInputStream(Paths.get("src/virtual_robot/assets/config.properties")));
-
-            String className =DEFAULT_BOT.getName().replace("virtual_robot.robots.classes.","");
-            properties.setProperty("DEFAULT_BOT", className);
-
-            FileOutputStream out = new FileOutputStream("src/virtual_robot/assets/config.properties");
-            properties.store(out, null);
-        } catch (IOException ignored)  {
-
+            String classname = prefs.get(ROBOT_TYPE, "");
+            if (!classname.isEmpty()) {
+                clazz = Class.forName(classname);
+            }
+        } catch (ClassNotFoundException e) {
+            // ignore,and return default value
         }
-    }
-
-    public static synchronized void setDefaultBot(VirtualBot bot) {
-          DEFAULT_BOT = bot.getClass();
+        return (Class<VirtualBot>) clazz;
     }
 }

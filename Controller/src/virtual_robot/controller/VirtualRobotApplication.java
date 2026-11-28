@@ -4,6 +4,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
+import java.util.prefs.Preferences;
+
 import javax.naming.Context;
 
 import javafx.application.Application;
@@ -29,10 +31,10 @@ public class VirtualRobotApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("virtual_robot.fxml"));
-        Config.loadConfig();
         BorderPane root = (BorderPane)loader.load();
         controllerHandle = loader.getController();
         primaryStage.setTitle("Virtual Robot");
+
         /*
          * The UI cannot reflow: the field is a fixed number of pixels, and the virtual
          * gamepad's joysticks are pinned at 120x120 because their drag maths depends on it.
@@ -80,11 +82,12 @@ public class VirtualRobotApplication extends Application {
         double chromeHeight = primaryStage.getHeight() - scene.getHeight();
         primaryStage.setMinWidth(naturalWidth * 0.5 + chromeWidth);
         primaryStage.setMinHeight(naturalHeight * 0.5 + chromeHeight);
+
+        Config.setWindowSize(primaryStage, -1, -1, -1, -1);
     }
 
     @Override
     public void stop() {
-        Config.saveConfig();
         if (controllerHandle.executorService != null && !controllerHandle.executorService.isShutdown()) {
             controllerHandle.executorService.shutdownNow();
         }

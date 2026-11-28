@@ -379,7 +379,7 @@ public class VirtualRobotController {
         // Reflections hands back a HashSet, whose order changes from run to run.
         validConfigClasses.sort(CONFIG_ORDER);
         cbxConfig.setItems(validConfigClasses);
-        cbxConfig.setValue(Config.DEFAULT_BOT);
+        cbxConfig.setValue(Config.getRobotType());
 
         cbxConfig.setCellFactory(new Callback<ListView<Class<?>>, ListCell<Class<?>>>() {
             @Override
@@ -559,7 +559,7 @@ public class VirtualRobotController {
         CommonOdometry.internalReset();
         bot = getVirtualBotInstance(cbxConfig.getValue());
         if (bot == null) System.out.println("Unable to get VirtualBot Object");
-        else Config.setDefaultBot(bot);
+        else Config.setRobotType(bot);
         hardwareMap = bot.getHardwareMap();
         // Every configuration starts at the same pose, placed as a drag would place it.
         moveBotTo(Config.STARTING_POSE);
